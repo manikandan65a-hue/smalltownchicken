@@ -12,6 +12,7 @@
   --gold:#f5a800;--gold2:#ffd060;
   --cream:#fff8ee;--cream2:#f5e8cc;
   --muted:#a07850;--white:#fffdf8;
+  --green:#2ecc71;--red:#e74c3c;--blue:#3498db;
 }
 *{margin:0;padding:0;box-sizing:border-box;}
 body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--cream);min-height:100vh;}
@@ -30,19 +31,108 @@ nav{background:var(--bg2);border-bottom:2px solid var(--rust);padding:0 2rem;hei
 .nav-price .nl{font-size:0.65rem;color:var(--muted);letter-spacing:1px;text-transform:uppercase;}
 .nav-price .nv{font-family:'Bebas Neue',sans-serif;font-size:1.3rem;color:var(--gold2);letter-spacing:1px;}
 
-/* ADMIN */
+/* ===== ADMIN PASSWORD MODAL ===== */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.88);z-index:500;align-items:center;justify-content:center;}
+.modal-overlay.visible{display:flex;}
+.modal-box{background:var(--bg2);border:2px solid var(--gold);border-radius:14px;padding:2.5rem;width:90%;max-width:380px;text-align:center;animation:popIn 0.25s ease;}
+@keyframes popIn{from{transform:scale(0.85);opacity:0;}to{transform:scale(1);opacity:1;}}
+.modal-icon{font-size:2.8rem;margin-bottom:0.8rem;}
+.modal-title{font-family:'Bebas Neue',sans-serif;font-size:1.8rem;letter-spacing:2px;color:var(--gold2);margin-bottom:0.4rem;}
+.modal-sub{font-size:0.82rem;color:var(--muted);margin-bottom:1.4rem;}
+.modal-input{width:100%;background:var(--bg3);border:1.5px solid rgba(245,168,0,0.3);border-radius:7px;padding:0.75rem 1rem;color:var(--cream);font-family:'DM Sans',sans-serif;font-size:1rem;outline:none;transition:border-color 0.2s;text-align:center;letter-spacing:3px;}
+.modal-input:focus{border-color:var(--gold);}
+.modal-err{color:var(--red);font-size:0.8rem;margin-top:0.5rem;min-height:1.2em;}
+.modal-btn{width:100%;background:var(--gold);color:var(--bg);border:none;padding:0.75rem;border-radius:7px;font-family:'Bebas Neue',sans-serif;font-size:1.1rem;letter-spacing:2px;cursor:pointer;margin-top:1rem;transition:background 0.2s;}
+.modal-btn:hover{background:var(--gold2);}
+.modal-cancel{background:transparent;border:none;color:var(--muted);font-size:0.82rem;cursor:pointer;margin-top:0.8rem;display:block;width:100%;text-align:center;padding:0.3rem;}
+.modal-cancel:hover{color:var(--cream);}
+
+/* ===== ADMIN PANEL ===== */
 .admin-panel{background:var(--bg2);border-bottom:2px solid var(--gold);padding:1.5rem 2rem;display:none;}
 .admin-panel.open{display:block;}
-.admin-ttl{font-family:'Bebas Neue',sans-serif;font-size:1.4rem;color:var(--gold);letter-spacing:2px;margin-bottom:1rem;}
+.admin-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.2rem;flex-wrap:wrap;gap:0.8rem;}
+.admin-ttl{font-family:'Bebas Neue',sans-serif;font-size:1.4rem;color:var(--gold);letter-spacing:2px;}
+.admin-logout{background:rgba(231,76,60,0.15);border:1px solid rgba(231,76,60,0.4);color:var(--red);font-size:0.78rem;padding:0.3rem 0.9rem;border-radius:4px;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s;}
+.admin-logout:hover{background:rgba(231,76,60,0.3);}
+
+/* Admin Tabs */
+.admin-tabs{display:flex;gap:0.5rem;margin-bottom:1.4rem;border-bottom:1px solid rgba(255,255,255,0.08);padding-bottom:0;flex-wrap:wrap;}
+.atab{background:transparent;border:none;border-bottom:2px solid transparent;padding:0.5rem 1.1rem;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:0.85rem;cursor:pointer;transition:all 0.2s;margin-bottom:-1px;}
+.atab.active{color:var(--gold);border-bottom-color:var(--gold);}
+.atab:hover{color:var(--cream2);}
+.atab-pane{display:none;}
+.atab-pane.active{display:block;}
+
+/* Prices Tab */
 .admin-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;max-width:900px;}
+.afield{margin-bottom:0.2rem;}
 .afield label{display:block;font-size:0.7rem;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:0.4rem;}
-.afield input{width:100%;background:var(--bg3);border:1px solid rgba(245,168,0,0.3);border-radius:5px;padding:0.6rem 1rem;color:var(--cream);font-family:'DM Sans',sans-serif;font-size:0.95rem;outline:none;transition:border-color 0.2s;}
-.afield input:focus{border-color:var(--gold);}
+.afield input,.afield select{width:100%;background:var(--bg3);border:1px solid rgba(245,168,0,0.3);border-radius:5px;padding:0.6rem 1rem;color:var(--cream);font-family:'DM Sans',sans-serif;font-size:0.95rem;outline:none;transition:border-color 0.2s;}
+.afield input:focus,.afield select:focus{border-color:var(--gold);}
 .save-btn{background:var(--gold);color:var(--bg);border:none;padding:0.65rem 2rem;border-radius:5px;font-family:'DM Sans',sans-serif;font-weight:500;font-size:0.95rem;cursor:pointer;margin-top:1.2rem;transition:background 0.2s;}
 .save-btn:hover{background:var(--gold2);}
 .saved-ok{color:#5cb85c;font-size:0.82rem;margin-top:0.5rem;display:none;}
 
-/* HERO */
+/* Product Availability Tab */
+.avail-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1rem;max-width:700px;}
+.avail-card{background:var(--bg3);border-radius:10px;padding:1.2rem 1.4rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;border:1.5px solid rgba(255,255,255,0.07);transition:border-color 0.2s;}
+.avail-card.available{border-color:rgba(46,204,113,0.35);}
+.avail-card.unavailable{border-color:rgba(231,76,60,0.35);}
+.avail-info{display:flex;align-items:center;gap:0.8rem;}
+.avail-icon{font-size:2rem;}
+.avail-name{font-family:'Lora',serif;font-weight:600;font-size:0.95rem;color:var(--cream);}
+.avail-status{font-size:0.75rem;margin-top:0.15rem;}
+.avail-status.on{color:var(--green);}
+.avail-status.off{color:var(--red);}
+/* Toggle switch */
+.toggle-wrap{position:relative;width:52px;height:28px;flex-shrink:0;}
+.toggle-wrap input{opacity:0;width:0;height:0;position:absolute;}
+.toggle-slider{position:absolute;inset:0;background:#555;border-radius:28px;cursor:pointer;transition:background 0.25s;}
+.toggle-slider::before{content:'';position:absolute;width:20px;height:20px;left:4px;top:4px;background:white;border-radius:50%;transition:transform 0.25s;}
+.toggle-wrap input:checked + .toggle-slider{background:var(--green);}
+.toggle-wrap input:checked + .toggle-slider::before{transform:translateX(24px);}
+
+/* Delivery Persons Tab */
+.dp-list{display:flex;flex-direction:column;gap:0.75rem;max-width:700px;margin-bottom:1.2rem;}
+.dp-item{background:var(--bg3);border-radius:9px;padding:0.9rem 1.1rem;display:flex;align-items:center;gap:0.9rem;border:1px solid rgba(255,255,255,0.07);flex-wrap:wrap;}
+.dp-badge{width:36px;height:36px;border-radius:50%;background:var(--rust);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:1rem;color:white;flex-shrink:0;}
+.dp-details{flex:1;min-width:120px;}
+.dp-dname{font-size:0.92rem;font-weight:500;color:var(--cream);}
+.dp-dphone{font-size:0.78rem;color:var(--muted);margin-top:0.1rem;}
+.dp-active-badge{font-size:0.68rem;background:rgba(46,204,113,0.18);color:var(--green);border:1px solid rgba(46,204,113,0.35);padding:0.18rem 0.6rem;border-radius:20px;margin-left:0.5rem;}
+.dp-actions{display:flex;gap:0.5rem;flex-wrap:wrap;}
+.dp-btn{border:none;padding:0.35rem 0.75rem;border-radius:4px;font-family:'DM Sans',sans-serif;font-size:0.78rem;cursor:pointer;transition:all 0.2s;}
+.dp-btn.set-active{background:rgba(52,152,219,0.18);color:var(--blue);border:1px solid rgba(52,152,219,0.4);}
+.dp-btn.set-active:hover{background:rgba(52,152,219,0.35);}
+.dp-btn.del{background:rgba(231,76,60,0.15);color:var(--red);border:1px solid rgba(231,76,60,0.35);}
+.dp-btn.del:hover{background:rgba(231,76,60,0.3);}
+.dp-btn.edit-dp{background:rgba(245,168,0,0.15);color:var(--gold);border:1px solid rgba(245,168,0,0.35);}
+.dp-btn.edit-dp:hover{background:rgba(245,168,0,0.3);}
+.add-dp-form{background:var(--bg3);border-radius:9px;padding:1rem 1.2rem;max-width:700px;border:1px dashed rgba(245,168,0,0.3);}
+.add-dp-form .form-row{display:flex;gap:0.75rem;flex-wrap:wrap;}
+.add-dp-form input{flex:1;min-width:140px;background:var(--bg2);border:1px solid rgba(245,168,0,0.25);border-radius:5px;padding:0.55rem 0.9rem;color:var(--cream);font-family:'DM Sans',sans-serif;font-size:0.88rem;outline:none;transition:border-color 0.2s;}
+.add-dp-form input:focus{border-color:var(--gold);}
+.add-dp-btn{background:var(--rust);color:white;border:none;padding:0.55rem 1.2rem;border-radius:5px;font-family:'DM Sans',sans-serif;font-size:0.88rem;cursor:pointer;transition:background 0.2s;white-space:nowrap;}
+.add-dp-btn:hover{background:var(--rust2);}
+.add-dp-label{font-size:0.7rem;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:0.6rem;}
+
+/* Schedule Tab */
+.sched-list{display:flex;flex-direction:column;gap:0.6rem;max-width:600px;margin-bottom:1.2rem;}
+.sched-item{background:var(--bg3);border-radius:8px;padding:0.75rem 1rem;display:flex;align-items:center;gap:0.8rem;border:1px solid rgba(255,255,255,0.07);}
+.sched-item.inactive{opacity:0.5;}
+.sched-time-txt{flex:1;font-size:0.9rem;color:var(--cream2);}
+.sched-toggle{flex-shrink:0;}
+.sched-del{background:rgba(231,76,60,0.15);color:var(--red);border:1px solid rgba(231,76,60,0.35);padding:0.28rem 0.65rem;border-radius:4px;font-size:0.75rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s;}
+.sched-del:hover{background:rgba(231,76,60,0.3);}
+.add-slot-form{background:var(--bg3);border-radius:9px;padding:1rem 1.2rem;max-width:600px;border:1px dashed rgba(245,168,0,0.3);}
+.slot-row{display:flex;gap:0.75rem;flex-wrap:wrap;align-items:center;}
+.slot-row input{flex:1;min-width:160px;background:var(--bg2);border:1px solid rgba(245,168,0,0.25);border-radius:5px;padding:0.55rem 0.9rem;color:var(--cream);font-family:'DM Sans',sans-serif;font-size:0.88rem;outline:none;transition:border-color 0.2s;}
+.slot-row input:focus{border-color:var(--gold);}
+.slot-add-btn{background:var(--rust);color:white;border:none;padding:0.55rem 1.2rem;border-radius:5px;font-size:0.88rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:background 0.2s;white-space:nowrap;}
+.slot-add-btn:hover{background:var(--rust2);}
+.sched-hint{font-size:0.75rem;color:var(--muted);margin-bottom:0.7rem;}
+
+/* ===== HERO ===== */
 .hero{padding:3rem 2rem 2.5rem;display:grid;grid-template-columns:1fr auto;align-items:center;gap:2rem;background:var(--bg2);border-bottom:1px solid var(--bg3);position:relative;overflow:hidden;}
 .hero::before{content:'🍗';font-size:20rem;position:absolute;right:-1rem;top:50%;transform:translateY(-50%);opacity:0.04;pointer-events:none;}
 .h-eyebrow{font-size:0.73rem;letter-spacing:3px;text-transform:uppercase;color:var(--rust2);font-weight:500;margin-bottom:0.7rem;}
@@ -65,8 +155,10 @@ nav{background:var(--bg2);border-bottom:2px solid var(--rust);padding:0 2rem;hei
 
 /* Products */
 .products{display:grid;grid-template-columns:1fr 1fr;gap:1.2rem;margin-bottom:2.5rem;}
-.prod-card{background:var(--bg2);border:1px solid var(--bg3);border-radius:10px;padding:1.3rem;display:flex;align-items:flex-start;gap:1rem;transition:border-color 0.2s,transform 0.15s;}
+.prod-card{background:var(--bg2);border:1px solid var(--bg3);border-radius:10px;padding:1.3rem;display:flex;align-items:flex-start;gap:1rem;transition:border-color 0.2s,transform 0.15s;position:relative;}
 .prod-card:hover{border-color:var(--rust);transform:translateY(-2px);}
+.prod-card.out-of-stock{opacity:0.55;pointer-events:none;}
+.unavail-ribbon{position:absolute;top:10px;right:10px;background:var(--red);color:white;font-size:0.68rem;font-weight:600;padding:0.2rem 0.6rem;border-radius:4px;letter-spacing:1px;text-transform:uppercase;}
 .prod-icon{font-size:3.2rem;flex-shrink:0;}
 .prod-info{flex:1;}
 .prod-name{font-family:'Lora',serif;font-weight:600;font-size:1rem;color:var(--cream);margin-bottom:0.2rem;}
@@ -99,6 +191,11 @@ nav{background:var(--bg2);border-bottom:2px solid var(--rust);padding:0 2rem;hei
 .map-open-link{display:inline-flex;align-items:center;gap:0.4rem;font-size:0.82rem;color:var(--rust2);text-decoration:none;margin-bottom:1.2rem;padding:0.4rem 0.9rem;border:1px solid rgba(240,96,32,0.3);border-radius:4px;transition:border-color 0.2s;}
 .map-open-link:hover{border-color:var(--rust2);}
 
+/* Current Delivery Man Banner */
+.delivery-banner{background:var(--bg3);border:1px solid rgba(46,204,113,0.3);border-radius:8px;padding:0.7rem 1.1rem;margin-bottom:1.2rem;display:flex;align-items:center;gap:0.7rem;font-size:0.84rem;color:var(--cream2);}
+.delivery-banner .db-icon{font-size:1.3rem;}
+.delivery-banner strong{color:var(--green);}
+
 /* Summary */
 .summary-box{background:var(--bg3);border-radius:8px;padding:1rem 1.2rem;margin-bottom:1.2rem;border:1px solid rgba(245,168,0,0.15);}
 .summary-box h4{font-family:'Lora',serif;font-size:0.92rem;color:var(--cream2);margin-bottom:0.8rem;padding-bottom:0.6rem;border-bottom:1px solid rgba(255,255,255,0.07);}
@@ -130,6 +227,15 @@ footer{background:var(--bg2);border-top:1px solid var(--bg3);padding:1.5rem 2rem
 .fl{font-family:'Bebas Neue',sans-serif;color:var(--gold);font-size:1.1rem;letter-spacing:1px;}
 footer p{font-size:0.78rem;color:var(--muted);}
 
+/* Edit DP modal */
+.edit-dp-modal .modal-box{text-align:left;}
+.edit-dp-modal .modal-box input{width:100%;background:var(--bg3);border:1px solid rgba(245,168,0,0.3);border-radius:5px;padding:0.6rem 1rem;color:var(--cream);font-family:'DM Sans',sans-serif;font-size:0.9rem;outline:none;transition:border-color 0.2s;margin-top:0.4rem;letter-spacing:normal;}
+.edit-dp-modal .modal-box input:focus{border-color:var(--gold);}
+.edit-dp-modal .afield{margin-bottom:0.9rem;}
+.edit-dp-modal .modal-btn{margin-top:0.5rem;}
+.edit-actions{display:flex;gap:0.7rem;margin-top:1rem;}
+.edit-actions button{flex:1;}
+
 @media(max-width:680px){
   .hero{grid-template-columns:1fr;}
   .price-card{display:none;}
@@ -141,6 +247,8 @@ footer p{font-size:0.78rem;color:var(--muted);}
   nav{padding:0 1rem;}
   .topbar{padding:0.4rem 1rem;}
   .main{padding:2rem 1rem;}
+  .admin-panel{padding:1.2rem 1rem;}
+  .dp-item{gap:0.6rem;}
 }
 </style>
 </head>
@@ -149,7 +257,7 @@ footer p{font-size:0.78rem;color:var(--muted);}
 <!-- TOP BAR -->
 <div class="topbar">
   <span>🍗 Small Town Chicken &nbsp;·&nbsp; Fresh Daily &nbsp;·&nbsp; Chennai</span>
-  <button class="admin-toggle" onclick="toggleAdmin()">⚙️ Admin</button>
+  <button class="admin-toggle" onclick="openAdminLogin()">⚙️ Admin</button>
 </div>
 
 <!-- NAV -->
@@ -164,30 +272,112 @@ footer p{font-size:0.78rem;color:var(--muted);}
   </div>
 </nav>
 
-<!-- ADMIN PANEL -->
-<div class="admin-panel" id="adminPanel">
-  <div class="admin-ttl">⚙️ Admin — Set Today's Prices</div>
-  <div class="admin-grid">
-    <div class="afield">
-      <label>Whole Chicken (₹ / kg)</label>
-      <input type="number" id="adminWhole" placeholder="e.g. 220" min="1"/>
+<!-- ===== ADMIN LOGIN MODAL ===== -->
+<div class="modal-overlay" id="adminLoginModal">
+  <div class="modal-box">
+    <div class="modal-icon">🔐</div>
+    <div class="modal-title">Admin Access</div>
+    <div class="modal-sub">Enter your admin password to continue</div>
+    <input type="password" class="modal-input" id="adminPassInput" placeholder="••••••••"
+      onkeydown="if(event.key==='Enter')checkAdminPass()"/>
+    <div class="modal-err" id="adminPassErr"></div>
+    <button class="modal-btn" onclick="checkAdminPass()">🔓 UNLOCK ADMIN</button>
+    <button class="modal-cancel" onclick="closeAdminLogin()">Cancel</button>
+  </div>
+</div>
+
+<!-- ===== EDIT DELIVERY PERSON MODAL ===== -->
+<div class="modal-overlay edit-dp-modal" id="editDpModal">
+  <div class="modal-box" style="text-align:left;max-width:400px;">
+    <div class="modal-title" style="font-size:1.3rem;">✏️ Edit Delivery Person</div>
+    <div style="margin-top:1rem;">
+      <div class="afield">
+        <label>Full Name</label>
+        <input type="text" id="editDpName" placeholder="e.g. Rajan Kumar"/>
+      </div>
+      <div class="afield">
+        <label>WhatsApp Number (with country code)</label>
+        <input type="tel" id="editDpPhone" placeholder="919876543210"/>
+      </div>
     </div>
-    <div class="afield">
-      <label>Pieces (₹ / kg)</label>
-      <input type="number" id="adminPieces" placeholder="e.g. 260" min="1"/>
-    </div>
-    <div class="afield">
-      <label>Delivery Man WhatsApp No.</label>
-      <input type="tel" id="adminPhone" placeholder="919876543210 (with country code)"/>
-    </div>
-    <div class="afield">
-      <label>Today's Note (optional)</label>
-      <input type="text" id="adminNote" placeholder="e.g. Extra fresh batch today!"/>
+    <div class="edit-actions">
+      <button class="modal-btn" onclick="saveEditDp()" style="margin-top:0;">💾 Save</button>
+      <button class="modal-cancel" onclick="closeEditDp()" style="border:1px solid rgba(255,255,255,0.15);border-radius:7px;padding:0.75rem;">Cancel</button>
     </div>
   </div>
-  <button class="save-btn" onclick="savePrices()">💾 Save &amp; Publish Prices</button>
-  <div class="saved-ok" id="savedOk">✅ Prices live! Customers can now see today's rates.</div>
 </div>
+
+<!-- ===== ADMIN PANEL ===== -->
+<div class="admin-panel" id="adminPanel">
+  <div class="admin-header">
+    <div class="admin-ttl">⚙️ Admin Dashboard</div>
+    <button class="admin-logout" onclick="adminLogout()">🔒 Lock Admin</button>
+  </div>
+
+  <!-- TABS -->
+  <div class="admin-tabs">
+    <button class="atab active" onclick="switchTab('prices',this)">💰 Prices</button>
+    <button class="atab" onclick="switchTab('availability',this)">📦 Products</button>
+    <button class="atab" onclick="switchTab('delivery',this)">🛵 Delivery Persons</button>
+    <button class="atab" onclick="switchTab('schedule',this)">⏰ Time Slots</button>
+  </div>
+
+  <!-- TAB: PRICES -->
+  <div class="atab-pane active" id="tab-prices">
+    <div class="admin-grid">
+      <div class="afield">
+        <label>Whole Chicken (₹ / kg)</label>
+        <input type="number" id="adminWhole" placeholder="e.g. 220" min="1"/>
+      </div>
+      <div class="afield">
+        <label>Pieces (₹ / kg)</label>
+        <input type="number" id="adminPieces" placeholder="e.g. 260" min="1"/>
+      </div>
+      <div class="afield">
+        <label>Today's Note (optional)</label>
+        <input type="text" id="adminNote" placeholder="e.g. Extra fresh batch today!"/>
+      </div>
+    </div>
+    <button class="save-btn" onclick="savePrices()">💾 Save &amp; Publish Prices</button>
+    <div class="saved-ok" id="savedOk">✅ Prices live! Customers can now see today's rates.</div>
+  </div>
+
+  <!-- TAB: PRODUCT AVAILABILITY -->
+  <div class="atab-pane" id="tab-availability">
+    <p style="font-size:0.82rem;color:var(--muted);margin-bottom:1rem;">Toggle products on or off. Unavailable products will be hidden from customers.</p>
+    <div class="avail-grid" id="availGrid">
+      <!-- Rendered by JS -->
+    </div>
+  </div>
+
+  <!-- TAB: DELIVERY PERSONS -->
+  <div class="atab-pane" id="tab-delivery">
+    <p style="font-size:0.82rem;color:var(--muted);margin-bottom:1rem;">Manage your delivery team. The <strong style="color:var(--green);">active</strong> person receives all orders via WhatsApp. You can swap instantly.</p>
+    <div class="dp-list" id="dpList"><!-- Rendered by JS --></div>
+    <div class="add-dp-form">
+      <div class="add-dp-label">➕ Add New Delivery Person</div>
+      <div class="form-row">
+        <input type="text" id="newDpName" placeholder="Full Name"/>
+        <input type="tel" id="newDpPhone" placeholder="WhatsApp No. (e.g. 919876543210)"/>
+        <button class="add-dp-btn" onclick="addDeliveryPerson()">Add Person</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB: TIME SLOTS -->
+  <div class="atab-pane" id="tab-schedule">
+    <p class="sched-hint">Toggle slots on/off to control what customers can select. Delete or add custom slots.</p>
+    <div class="sched-list" id="schedList"><!-- Rendered by JS --></div>
+    <div class="add-slot-form">
+      <div class="add-dp-label">➕ Add New Time Slot</div>
+      <div class="slot-row">
+        <input type="text" id="newSlotTxt" placeholder="e.g. 6 AM – 8 AM (Early Bird)"/>
+        <button class="slot-add-btn" onclick="addTimeSlot()">Add Slot</button>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /admin-panel -->
 
 <!-- HERO -->
 <section class="hero">
@@ -214,10 +404,11 @@ footer p{font-size:0.78rem;color:var(--muted);}
 
   <div class="sec-title">📦 Select Your Order</div>
 
-  <div class="products">
+  <div class="products" id="productsGrid">
 
     <!-- Whole Chicken -->
-    <div class="prod-card">
+    <div class="prod-card" id="cardWhole">
+      <div class="unavail-ribbon" id="wholeRibbon" style="display:none;">Unavailable</div>
       <div class="prod-icon">🐔</div>
       <div class="prod-info">
         <div class="prod-name">Whole Chicken</div>
@@ -233,7 +424,8 @@ footer p{font-size:0.78rem;color:var(--muted);}
     </div>
 
     <!-- Pieces -->
-    <div class="prod-card">
+    <div class="prod-card" id="cardPieces">
+      <div class="unavail-ribbon" id="piecesRibbon" style="display:none;">Unavailable</div>
       <div class="prod-icon">🍗</div>
       <div class="prod-info">
         <div class="prod-name">Chicken Pieces</div>
@@ -261,6 +453,12 @@ footer p{font-size:0.78rem;color:var(--muted);}
   <div class="form-box">
     <div class="sec-title" style="font-size:1.4rem;margin-bottom:1.5rem;">🗺️ Delivery Details</div>
 
+    <!-- Active Delivery Person Banner -->
+    <div class="delivery-banner" id="deliveryBanner" style="display:none;">
+      <span class="db-icon">🛵</span>
+      <span>Your order will be handled by <strong id="bannerDpName">—</strong></span>
+    </div>
+
     <div class="form-grid">
       <div class="fg">
         <label>Your Name</label>
@@ -282,10 +480,6 @@ footer p{font-size:0.78rem;color:var(--muted);}
         <label>Delivery Time Slot</label>
         <select id="cSlot">
           <option value="">Select a slot</option>
-          <option>7 AM – 9 AM (Early Morning)</option>
-          <option>9 AM – 12 PM (Morning)</option>
-          <option>12 PM – 3 PM (Afternoon)</option>
-          <option>4 PM – 7 PM (Evening)</option>
         </select>
       </div>
       <div class="fg full">
@@ -310,7 +504,7 @@ footer p{font-size:0.78rem;color:var(--muted);}
 
     <div class="fg" style="margin-top:0.7rem;">
       <label>Paste Google Maps Link Here</label>
-      <input type="text" id="mapLink" placeholder="https://maps.google.com/?q=… paste your link here" oninput="tryEmbedMap(this.value)"/>
+      <input type="text" id="mapLink" placeholder="https://maps.google.com/?q=… paste your link here"/>
     </div>
 
     <a class="map-open-link" href="https://maps.google.com" target="_blank">
@@ -359,109 +553,440 @@ footer p{font-size:0.78rem;color:var(--muted);}
 </div>
 
 <script>
-const S = { wp:0, pp:0, dPhone:'919876543210', note:'', wQty:0, pQty:0 };
+/* =====================================================================
+   ADMIN PASSWORD — change this to your desired password
+   ===================================================================== */
+const ADMIN_PASSWORD = 'chicken@2026';
 
-function loadSaved(){
-  const d = localStorage.getItem('stc2');
-  if(d){
-    const o = JSON.parse(d);
-    S.wp = o.wp||0; S.pp = o.pp||0;
-    S.dPhone = o.dPhone||'919876543210';
-    S.note = o.note||'';
-    document.getElementById('adminWhole').value = S.wp||'';
-    document.getElementById('adminPieces').value = S.pp||'';
-    document.getElementById('adminPhone').value = S.dPhone||'';
-    document.getElementById('adminNote').value = S.note||'';
+/* =====================================================================
+   STATE
+   ===================================================================== */
+const STORE_KEY = 'stc_v3';
+
+const defaultState = {
+  wp: 0, pp: 0, note: '',
+  wholeAvail: true, piecesAvail: true,
+  deliveryPersons: [
+    { id: 1, name: 'Rajan Kumar', phone: '919876543210', active: true }
+  ],
+  timeSlots: [
+    { id: 1, label: '7 AM – 9 AM (Early Morning)', active: true },
+    { id: 2, label: '9 AM – 12 PM (Morning)',      active: true },
+    { id: 3, label: '12 PM – 3 PM (Afternoon)',    active: true },
+    { id: 4, label: '4 PM – 7 PM (Evening)',       active: true },
+  ]
+};
+
+let S = JSON.parse(JSON.stringify(defaultState));
+let Qty = { w: 0, p: 0 };
+let adminUnlocked = false;
+let editingDpId = null;
+
+/* =====================================================================
+   PERSISTENCE
+   ===================================================================== */
+function saveState() {
+  localStorage.setItem(STORE_KEY, JSON.stringify(S));
+}
+function loadState() {
+  const raw = localStorage.getItem(STORE_KEY);
+  if (raw) {
+    try {
+      const saved = JSON.parse(raw);
+      // Merge saved over defaults so new keys always exist
+      S = Object.assign({}, defaultState, saved);
+      if (!S.deliveryPersons || !S.deliveryPersons.length) S.deliveryPersons = defaultState.deliveryPersons;
+      if (!S.timeSlots || !S.timeSlots.length) S.timeSlots = defaultState.timeSlots;
+    } catch(e) { S = JSON.parse(JSON.stringify(defaultState)); }
   }
-  renderPrices();
 }
 
-function renderPrices(){
-  const today = new Date().toLocaleDateString('en-IN',{weekday:'short',day:'numeric',month:'short'});
-  document.getElementById('pcDate').textContent = today;
-  document.getElementById('pcWhole').textContent = S.wp ? '₹'+S.wp : '—';
-  document.getElementById('pcPieces').textContent = S.pp ? '₹'+S.pp : '—';
-  document.getElementById('navPrice').textContent = S.wp ? '₹'+S.wp+'/kg' : 'Not Set';
-  document.getElementById('wholePriceDisp').innerHTML = S.wp ? '₹'+S.wp+'<small> /kg</small>' : '₹— <small>/kg</small>';
-  document.getElementById('piecesPriceDisp').innerHTML = S.pp ? '₹'+S.pp+'<small> /kg</small>' : '₹— <small>/kg</small>';
-  document.getElementById('heroNote').textContent = S.note ? '📢 '+S.note : '';
-  updateSummary();
+/* =====================================================================
+   ADMIN AUTH
+   ===================================================================== */
+function openAdminLogin() {
+  if (adminUnlocked) {
+    document.getElementById('adminPanel').classList.toggle('open');
+    return;
+  }
+  document.getElementById('adminPassInput').value = '';
+  document.getElementById('adminPassErr').textContent = '';
+  document.getElementById('adminLoginModal').classList.add('visible');
+  setTimeout(() => document.getElementById('adminPassInput').focus(), 200);
 }
 
-function toggleAdmin(){
-  document.getElementById('adminPanel').classList.toggle('open');
+function closeAdminLogin() {
+  document.getElementById('adminLoginModal').classList.remove('visible');
 }
 
-function savePrices(){
+function checkAdminPass() {
+  const val = document.getElementById('adminPassInput').value;
+  if (val === ADMIN_PASSWORD) {
+    adminUnlocked = true;
+    closeAdminLogin();
+    document.getElementById('adminPanel').classList.add('open');
+    renderAdminUI();
+    showToast('✅ Admin unlocked!');
+  } else {
+    document.getElementById('adminPassErr').textContent = '❌ Wrong password. Try again.';
+    document.getElementById('adminPassInput').value = '';
+    document.getElementById('adminPassInput').focus();
+  }
+}
+
+function adminLogout() {
+  adminUnlocked = false;
+  document.getElementById('adminPanel').classList.remove('open');
+  showToast('🔒 Admin locked.');
+}
+
+/* =====================================================================
+   TABS
+   ===================================================================== */
+function switchTab(id, btn) {
+  document.querySelectorAll('.atab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.atab-pane').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('tab-' + id).classList.add('active');
+}
+
+/* =====================================================================
+   RENDER ALL ADMIN UI
+   ===================================================================== */
+function renderAdminUI() {
+  // Populate price fields
+  document.getElementById('adminWhole').value = S.wp || '';
+  document.getElementById('adminPieces').value = S.pp || '';
+  document.getElementById('adminNote').value = S.note || '';
+  renderAvailability();
+  renderDeliveryPersons();
+  renderSchedule();
+}
+
+/* =====================================================================
+   PRICES
+   ===================================================================== */
+function savePrices() {
   const wp = parseFloat(document.getElementById('adminWhole').value);
   const pp = parseFloat(document.getElementById('adminPieces').value);
-  const ph = document.getElementById('adminPhone').value.trim();
   const nt = document.getElementById('adminNote').value.trim();
-  if(!wp||!pp){ showToast('⚠️ Please enter both prices!'); return; }
-  if(!ph){ showToast('⚠️ Please enter delivery man WhatsApp number!'); return; }
-  S.wp=wp; S.pp=pp; S.dPhone=ph; S.note=nt;
-  localStorage.setItem('stc2', JSON.stringify({wp,pp,dPhone:ph,note:nt}));
+  if (!wp || !pp) { showToast('⚠️ Please enter both prices!'); return; }
+  S.wp = wp; S.pp = pp; S.note = nt;
+  saveState();
   const el = document.getElementById('savedOk');
-  el.style.display='block';
-  setTimeout(()=>el.style.display='none',3500);
+  el.style.display = 'block';
+  setTimeout(() => el.style.display = 'none', 3500);
   renderPrices();
   showToast('✅ Today\'s prices are now live!');
 }
 
-function changeQty(type, delta){
-  if(type==='w'){
-    S.wQty = Math.max(0, Math.round((S.wQty+delta)*10)/10);
-    document.getElementById('wQty').textContent = S.wQty;
+function renderPrices() {
+  const today = new Date().toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' });
+  document.getElementById('pcDate').textContent = today;
+  document.getElementById('pcWhole').textContent = S.wp ? '₹' + S.wp : '—';
+  document.getElementById('pcPieces').textContent = S.pp ? '₹' + S.pp : '—';
+  document.getElementById('navPrice').textContent = S.wp ? '₹' + S.wp + '/kg' : 'Not Set';
+  document.getElementById('wholePriceDisp').innerHTML = S.wp ? '₹' + S.wp + '<small> /kg</small>' : '₹— <small>/kg</small>';
+  document.getElementById('piecesPriceDisp').innerHTML = S.pp ? '₹' + S.pp + '<small> /kg</small>' : '₹— <small>/kg</small>';
+  document.getElementById('heroNote').textContent = S.note ? '📢 ' + S.note : '';
+  updateSummary();
+}
+
+/* =====================================================================
+   PRODUCT AVAILABILITY
+   ===================================================================== */
+function renderAvailability() {
+  const products = [
+    { key: 'wholeAvail', icon: '🐔', name: 'Whole Chicken' },
+    { key: 'piecesAvail', icon: '🍗', name: 'Chicken Pieces' }
+  ];
+  const grid = document.getElementById('availGrid');
+  grid.innerHTML = products.map(p => `
+    <div class="avail-card ${S[p.key] ? 'available' : 'unavailable'}" id="avcard-${p.key}">
+      <div class="avail-info">
+        <div class="avail-icon">${p.icon}</div>
+        <div>
+          <div class="avail-name">${p.name}</div>
+          <div class="avail-status ${S[p.key] ? 'on' : 'off'}" id="avstat-${p.key}">
+            ${S[p.key] ? '● Available' : '● Unavailable'}
+          </div>
+        </div>
+      </div>
+      <label class="toggle-wrap">
+        <input type="checkbox" ${S[p.key] ? 'checked' : ''} onchange="toggleProduct('${p.key}', this.checked)"/>
+        <div class="toggle-slider"></div>
+      </label>
+    </div>
+  `).join('');
+
+  // Apply to product cards
+  applyAvailability();
+}
+
+function toggleProduct(key, val) {
+  S[key] = val;
+  saveState();
+  // Update card style
+  const card = document.getElementById('avcard-' + key);
+  const stat = document.getElementById('avstat-' + key);
+  if (card) {
+    card.className = 'avail-card ' + (val ? 'available' : 'unavailable');
+    stat.className = 'avail-status ' + (val ? 'on' : 'off');
+    stat.textContent = val ? '● Available' : '● Unavailable';
+  }
+  applyAvailability();
+  showToast(val ? '✅ Product is now available.' : '🚫 Product marked unavailable.');
+}
+
+function applyAvailability() {
+  const cardW = document.getElementById('cardWhole');
+  const cardP = document.getElementById('cardPieces');
+  const ribW  = document.getElementById('wholeRibbon');
+  const ribP  = document.getElementById('piecesRibbon');
+  if (S.wholeAvail) {
+    cardW.classList.remove('out-of-stock');
+    ribW.style.display = 'none';
   } else {
-    S.pQty = Math.max(0, Math.round((S.pQty+delta)*10)/10);
-    document.getElementById('pQty').textContent = S.pQty;
+    cardW.classList.add('out-of-stock');
+    ribW.style.display = 'block';
+    Qty.w = 0;
+    document.getElementById('wQty').textContent = 0;
+  }
+  if (S.piecesAvail) {
+    cardP.classList.remove('out-of-stock');
+    ribP.style.display = 'none';
+  } else {
+    cardP.classList.add('out-of-stock');
+    ribP.style.display = 'block';
+    Qty.p = 0;
+    document.getElementById('pQty').textContent = 0;
   }
   updateSummary();
 }
 
-function updateSummary(){
-  const wT = S.wQty * S.wp;
-  const pT = S.pQty * S.pp;
+/* =====================================================================
+   DELIVERY PERSONS
+   ===================================================================== */
+function renderDeliveryPersons() {
+  const list = document.getElementById('dpList');
+  if (!S.deliveryPersons.length) {
+    list.innerHTML = '<p style="color:var(--muted);font-size:0.85rem;">No delivery persons added yet.</p>';
+    updateDeliveryBanner();
+    return;
+  }
+  list.innerHTML = S.deliveryPersons.map(dp => {
+    const initials = dp.name.split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase();
+    return `
+      <div class="dp-item">
+        <div class="dp-badge">${initials}</div>
+        <div class="dp-details">
+          <div class="dp-dname">
+            ${dp.name}
+            ${dp.active ? '<span class="dp-active-badge">● ACTIVE</span>' : ''}
+          </div>
+          <div class="dp-dphone">📱 +${dp.phone}</div>
+        </div>
+        <div class="dp-actions">
+          ${!dp.active ? `<button class="dp-btn set-active" onclick="setActiveDp(${dp.id})">⚡ Set Active</button>` : ''}
+          <button class="dp-btn edit-dp" onclick="openEditDp(${dp.id})">✏️ Edit</button>
+          <button class="dp-btn del" onclick="deleteDp(${dp.id})">🗑️ Remove</button>
+        </div>
+      </div>
+    `;
+  }).join('');
+  updateDeliveryBanner();
+}
+
+function addDeliveryPerson() {
+  const name  = document.getElementById('newDpName').value.trim();
+  const phone = document.getElementById('newDpPhone').value.trim();
+  if (!name)  { showToast('⚠️ Enter delivery person\'s name.'); return; }
+  if (!phone) { showToast('⚠️ Enter WhatsApp number with country code.'); return; }
+  const id = Date.now();
+  S.deliveryPersons.push({ id, name, phone, active: false });
+  saveState();
+  document.getElementById('newDpName').value = '';
+  document.getElementById('newDpPhone').value = '';
+  renderDeliveryPersons();
+  showToast('✅ Delivery person added!');
+}
+
+function setActiveDp(id) {
+  S.deliveryPersons = S.deliveryPersons.map(dp => ({ ...dp, active: dp.id === id }));
+  saveState();
+  renderDeliveryPersons();
+  showToast('⚡ Active delivery person updated!');
+}
+
+function deleteDp(id) {
+  const dp = S.deliveryPersons.find(d => d.id === id);
+  if (dp && dp.active && S.deliveryPersons.length > 1) {
+    showToast('⚠️ Set another person as active before removing this one.');
+    return;
+  }
+  S.deliveryPersons = S.deliveryPersons.filter(d => d.id !== id);
+  saveState();
+  renderDeliveryPersons();
+  showToast('🗑️ Delivery person removed.');
+}
+
+function openEditDp(id) {
+  editingDpId = id;
+  const dp = S.deliveryPersons.find(d => d.id === id);
+  if (!dp) return;
+  document.getElementById('editDpName').value = dp.name;
+  document.getElementById('editDpPhone').value = dp.phone;
+  document.getElementById('editDpModal').classList.add('visible');
+  setTimeout(() => document.getElementById('editDpName').focus(), 150);
+}
+
+function closeEditDp() {
+  editingDpId = null;
+  document.getElementById('editDpModal').classList.remove('visible');
+}
+
+function saveEditDp() {
+  const name  = document.getElementById('editDpName').value.trim();
+  const phone = document.getElementById('editDpPhone').value.trim();
+  if (!name || !phone) { showToast('⚠️ Fill in all fields.'); return; }
+  S.deliveryPersons = S.deliveryPersons.map(dp =>
+    dp.id === editingDpId ? { ...dp, name, phone } : dp
+  );
+  saveState();
+  closeEditDp();
+  renderDeliveryPersons();
+  showToast('✅ Details updated!');
+}
+
+function updateDeliveryBanner() {
+  const active = S.deliveryPersons.find(d => d.active);
+  const banner = document.getElementById('deliveryBanner');
+  const nameEl = document.getElementById('bannerDpName');
+  if (active) {
+    banner.style.display = 'flex';
+    nameEl.textContent = active.name;
+  } else {
+    banner.style.display = 'none';
+  }
+}
+
+/* =====================================================================
+   TIME SLOTS
+   ===================================================================== */
+function renderSchedule() {
+  const list = document.getElementById('schedList');
+  if (!S.timeSlots.length) {
+    list.innerHTML = '<p style="color:var(--muted);font-size:0.85rem;">No time slots configured.</p>';
+    rebuildSlotDropdown();
+    return;
+  }
+  list.innerHTML = S.timeSlots.map(slot => `
+    <div class="sched-item ${slot.active ? '' : 'inactive'}">
+      <span class="sched-time-txt">${slot.active ? '🟢' : '🔴'} ${slot.label}</span>
+      <label class="toggle-wrap sched-toggle">
+        <input type="checkbox" ${slot.active ? 'checked' : ''} onchange="toggleSlot(${slot.id}, this.checked)"/>
+        <div class="toggle-slider"></div>
+      </label>
+      <button class="sched-del" onclick="deleteSlot(${slot.id})">✕ Delete</button>
+    </div>
+  `).join('');
+  rebuildSlotDropdown();
+}
+
+function toggleSlot(id, val) {
+  S.timeSlots = S.timeSlots.map(s => s.id === id ? { ...s, active: val } : s);
+  saveState();
+  renderSchedule();
+}
+
+function addTimeSlot() {
+  const txt = document.getElementById('newSlotTxt').value.trim();
+  if (!txt) { showToast('⚠️ Enter a time slot label.'); return; }
+  S.timeSlots.push({ id: Date.now(), label: txt, active: true });
+  saveState();
+  document.getElementById('newSlotTxt').value = '';
+  renderSchedule();
+  showToast('✅ Time slot added!');
+}
+
+function deleteSlot(id) {
+  S.timeSlots = S.timeSlots.filter(s => s.id !== id);
+  saveState();
+  renderSchedule();
+  showToast('🗑️ Time slot removed.');
+}
+
+function rebuildSlotDropdown() {
+  const sel = document.getElementById('cSlot');
+  const prev = sel.value;
+  sel.innerHTML = '<option value="">Select a slot</option>';
+  S.timeSlots.filter(s => s.active).forEach(s => {
+    const opt = document.createElement('option');
+    opt.value = s.label;
+    opt.textContent = s.label;
+    sel.appendChild(opt);
+  });
+  sel.value = prev; // restore if still valid
+}
+
+/* =====================================================================
+   QTY & SUMMARY
+   ===================================================================== */
+function changeQty(type, delta) {
+  if (type === 'w') {
+    Qty.w = Math.max(0, Math.round((Qty.w + delta) * 10) / 10);
+    document.getElementById('wQty').textContent = Qty.w;
+  } else {
+    Qty.p = Math.max(0, Math.round((Qty.p + delta) * 10) / 10);
+    document.getElementById('pQty').textContent = Qty.p;
+  }
+  updateSummary();
+}
+
+function updateSummary() {
+  const wT = Qty.w * S.wp;
+  const pT = Qty.p * S.pp;
   const grand = wT + pT;
   const cut = document.getElementById('cutType').value;
   let rows = '';
-  if(S.wQty>0 && S.wp>0) rows += `<div class="sum-row"><span>🐔 Whole Chicken × ${S.wQty}kg</span><span>₹${wT}</span></div>`;
-  if(S.pQty>0 && S.pp>0) rows += `<div class="sum-row"><span>🍗 ${cut} × ${S.pQty}kg</span><span>₹${pT}</span></div>`;
-  if(!rows) rows = '<div style="font-size:0.83rem;color:var(--muted);font-style:italic;">No items selected yet</div>';
+  if (Qty.w > 0 && S.wp > 0) rows += `<div class="sum-row"><span>🐔 Whole Chicken × ${Qty.w}kg</span><span>₹${wT}</span></div>`;
+  if (Qty.p > 0 && S.pp > 0) rows += `<div class="sum-row"><span>🍗 ${cut} × ${Qty.p}kg</span><span>₹${pT}</span></div>`;
+  if (!rows) rows = '<div style="font-size:0.83rem;color:var(--muted);font-style:italic;">No items selected yet</div>';
   document.getElementById('sumRows').innerHTML = rows;
-  document.getElementById('sumTotal').textContent = '₹'+grand;
+  document.getElementById('sumTotal').textContent = '₹' + grand;
 }
 
-function tryEmbedMap(val){
-  // Just show the link they pasted; map stays as Chennai overview
-  // (Google Maps share links cannot be iframed directly — user pastes for WA message)
-}
-
-function placeOrder(){
-  const name = document.getElementById('cName').value.trim();
-  const phone = document.getElementById('cPhone').value.trim();
-  const addr = document.getElementById('cAddress').value.trim();
-  const pin = document.getElementById('cPincode').value.trim();
-  const slot = document.getElementById('cSlot').value;
-  const notes = document.getElementById('cNotes').value.trim();
+/* =====================================================================
+   ORDER
+   ===================================================================== */
+function placeOrder() {
+  const name    = document.getElementById('cName').value.trim();
+  const phone   = document.getElementById('cPhone').value.trim();
+  const addr    = document.getElementById('cAddress').value.trim();
+  const pin     = document.getElementById('cPincode').value.trim();
+  const slot    = document.getElementById('cSlot').value;
+  const notes   = document.getElementById('cNotes').value.trim();
   const mapLink = document.getElementById('mapLink').value.trim();
-  const cut = document.getElementById('cutType').value;
+  const cut     = document.getElementById('cutType').value;
 
-  if(!S.wp || !S.pp){ showToast('⚠️ Prices not set yet! Please wait for admin to set today\'s price.'); return; }
-  if(!name){ showToast('Please enter your name.'); return; }
-  if(!phone){ showToast('Please enter your mobile number.'); return; }
-  if(!addr){ showToast('Please enter your delivery address.'); return; }
-  if(!slot){ showToast('Please select a delivery time slot.'); return; }
-  if(S.wQty===0 && S.pQty===0){ showToast('Please add at least one item!'); return; }
+  if (!S.wp || !S.pp) { showToast('⚠️ Prices not set yet! Please wait for admin to set today\'s price.'); return; }
+  if (!name)  { showToast('Please enter your name.'); return; }
+  if (!phone) { showToast('Please enter your mobile number.'); return; }
+  if (!addr)  { showToast('Please enter your delivery address.'); return; }
+  if (!slot)  { showToast('Please select a delivery time slot.'); return; }
+  if (Qty.w === 0 && Qty.p === 0) { showToast('Please add at least one item!'); return; }
 
-  const wT = S.wQty * S.wp;
-  const pT = S.pQty * S.pp;
+  const active = S.deliveryPersons.find(d => d.active);
+  if (!active) { showToast('⚠️ No active delivery person set. Please contact us directly.'); return; }
+
+  const wT = Qty.w * S.wp;
+  const pT = Qty.p * S.pp;
   const grand = wT + pT;
   const today = new Date().toLocaleDateString('en-IN');
 
   let lines = '';
-  if(S.wQty>0) lines += `🐔 Whole Chicken: ${S.wQty}kg × ₹${S.wp}/kg = ₹${wT}\n`;
-  if(S.pQty>0) lines += `🍗 ${cut}: ${S.pQty}kg × ₹${S.pp}/kg = ₹${pT}\n`;
+  if (Qty.w > 0) lines += `🐔 Whole Chicken: ${Qty.w}kg × ₹${S.wp}/kg = ₹${wT}\n`;
+  if (Qty.p > 0) lines += `🍗 ${cut}: ${Qty.p}kg × ₹${S.pp}/kg = ₹${pT}\n`;
 
   const msg =
 `🍗 *NEW ORDER — Small Town Chicken*
@@ -469,42 +994,61 @@ function placeOrder(){
 
 👤 *Customer:* ${name}
 📱 *Phone:* ${phone}
-🏠 *Address:* ${addr}${pin ? ', '+pin : ''}
+🏠 *Address:* ${addr}${pin ? ', ' + pin : ''}
 ⏰ *Slot:* ${slot}
 
 📦 *ORDER DETAILS:*
 ${lines}
 💰 *TOTAL: ₹${grand}*
-${notes ? '\n📝 Notes: '+notes : ''}
-${mapLink ? '\n📍 Map Location:\n'+mapLink : '\n📍 Location: Not shared (call customer)'}
+${notes ? '\n📝 Notes: ' + notes : ''}
+${mapLink ? '\n📍 Map Location:\n' + mapLink : '\n📍 Location: Not shared (call customer)'}
 
 ✅ Please confirm delivery. Thank you!`;
 
-  const waURL = `https://wa.me/${S.dPhone}?text=${encodeURIComponent(msg)}`;
-  window.open(waURL,'_blank');
-
-  setTimeout(()=> document.getElementById('sucOverlay').classList.add('visible'), 600);
+  const waURL = `https://wa.me/${active.phone}?text=${encodeURIComponent(msg)}`;
+  window.open(waURL, '_blank');
+  setTimeout(() => document.getElementById('sucOverlay').classList.add('visible'), 600);
 }
 
-function closeSuccess(){
+function closeSuccess() {
   document.getElementById('sucOverlay').classList.remove('visible');
-  S.wQty=0; S.pQty=0;
-  document.getElementById('wQty').textContent=0;
-  document.getElementById('pQty').textContent=0;
-  ['cName','cPhone','cAddress','cPincode','cNotes','mapLink'].forEach(id=>document.getElementById(id).value='');
-  document.getElementById('cSlot').value='';
+  Qty.w = 0; Qty.p = 0;
+  document.getElementById('wQty').textContent = 0;
+  document.getElementById('pQty').textContent = 0;
+  ['cName', 'cPhone', 'cAddress', 'cPincode', 'cNotes', 'mapLink'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('cSlot').value = '';
   updateSummary();
-  window.scrollTo({top:0,behavior:'smooth'});
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-function showToast(msg){
+/* =====================================================================
+   TOAST
+   ===================================================================== */
+function showToast(msg) {
   const t = document.getElementById('toast');
   t.textContent = msg;
   t.classList.add('show');
-  setTimeout(()=>t.classList.remove('show'),3500);
+  setTimeout(() => t.classList.remove('show'), 3500);
 }
 
-document.addEventListener('DOMContentLoaded', loadSaved);
+/* =====================================================================
+   INIT
+   ===================================================================== */
+document.addEventListener('DOMContentLoaded', () => {
+  loadState();
+  renderPrices();
+  applyAvailability();
+  rebuildSlotDropdown();
+  updateDeliveryBanner();
+
+  // Close modals on overlay click
+  document.getElementById('adminLoginModal').addEventListener('click', e => {
+    if (e.target === document.getElementById('adminLoginModal')) closeAdminLogin();
+  });
+  document.getElementById('editDpModal').addEventListener('click', e => {
+    if (e.target === document.getElementById('editDpModal')) closeEditDp();
+  });
+});
 </script>
 </body>
 </html>
