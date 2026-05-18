@@ -1,1065 +1,525 @@
+<think>
+The user wants to "improve the website". Looking at the previous code, it's a functional chicken delivery ordering system with Firebase/Google Sheets integration.
 
+Let me analyze what improvements could make this better:
+
+1. **UI/UX Improvements:**
+   - Make the design more modern and appetizing
+   - Better mobile responsiveness
+   - Improved visual hierarchy
+   - Better color scheme
+   - Add more visual elements (images of chicken, delivery, etc.)
+   - Better spacing and typography
+
+2. **Functionality Improvements:**
+   - Better error handling
+   - Persist cart in localStorage so orders aren't lost on refresh
+   - Auto-fill customer details from localStorage
+   - Better order tracking/status view
+   - Add a simple "Order History" view for returning customers
+   - Better validation
+
+3. **Performance:**
+   - Lazy load images
+   - Optimized CSS/JS
+
+Since this is a Single HTML File project, I should focus on:
+- Better visual design (make it look premium but rustic/farm-fresh)
+- Better mobile experience (most customers will order from phone)
+- Added features like persistent cart and simple "my orders" view
+- Better images/placeholder visuals
+
+Let me create a significantly improved version with:
+1. **Better Hero Section** - Clearer value proposition, appetizing imagery
+2. **Product Cards** - Better visual appeal, clear pricing
+3. **Form UX** - Better validation, auto-save to localStorage
+4. **Admin Panel** - More robust features
+5. **Visual Polish** - Animations, hover states, better typography
+
+I'll keep the Firebase/Sheets integration but make it more robust with local fallback.
+</think> is a significantly improved version with a modern, appetizing design, better mobile experience, persistent cart, and robust features.
+
+### Key Improvements:
+1. **Premium Restaurant Design**: Rustic warm colors, elegant typography, clear visual hierarchy.
+2. **Mobile-First Experience**: Big touch targets, simplified forms, auto-fill.
+3. **Persistent Cart**: Items stay in cart even if you close the browser.
+4. **Smart Validation**: Real-time form validation with helpful messages.
+5. **Order History**: Customers can see their past orders (stored locally).
+6. **Better Admin Panel**: Cleaner interface, easier product management.
+7. **Animations**: Subtle fade-ins and hover effects for a polished feel.
+
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Small Town Chicken</title>
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Lora:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<title>Small Town Chicken | Fresh Chicken Delivery in Chennai</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-:root{
-  --bg:#1a0d00;--bg2:#261200;--bg3:#321800;
-  --rust:#d94f00;--rust2:#f06020;
-  --gold:#f5a800;--gold2:#ffd060;
-  --cream:#fff8ee;--cream2:#f5e8cc;
-  --muted:#a07850;--white:#fffdf8;
-  --green:#2ecc71;--red:#e74c3c;--blue:#3498db;
-}
-*{margin:0;padding:0;box-sizing:border-box;}
-body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--cream);min-height:100vh;}
-
-/* TOPBAR */
-.topbar{background:var(--rust);padding:0.4rem 2rem;display:flex;align-items:center;justify-content:space-between;}
-.topbar span{font-size:0.78rem;opacity:0.9;}
-.admin-toggle{background:rgba(0,0,0,0.25);border:none;color:white;font-family:'DM Sans',sans-serif;font-size:0.78rem;padding:0.25rem 0.9rem;border-radius:3px;cursor:pointer;transition:background 0.2s;}
-.admin-toggle:hover{background:rgba(0,0,0,0.45);}
-
-/* NAV */
-nav{background:var(--bg2);border-bottom:2px solid var(--rust);padding:0 2rem;height:64px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:90;}
-.logo{font-family:'Bebas Neue',sans-serif;font-size:1.7rem;letter-spacing:2px;color:var(--gold2);display:flex;align-items:center;gap:0.5rem;}
-.logo-sub{font-family:'Lora',serif;font-style:italic;font-size:0.68rem;color:var(--muted);letter-spacing:1px;display:block;line-height:1;margin-top:-4px;font-weight:400;}
-.nav-price{background:var(--bg3);border:1px solid var(--rust);border-radius:6px;padding:0.35rem 1rem;text-align:center;}
-.nav-price .nl{font-size:0.65rem;color:var(--muted);letter-spacing:1px;text-transform:uppercase;}
-.nav-price .nv{font-family:'Bebas Neue',sans-serif;font-size:1.3rem;color:var(--gold2);letter-spacing:1px;}
-
-/* ===== ADMIN PASSWORD MODAL ===== */
-.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.88);z-index:500;align-items:center;justify-content:center;}
-.modal-overlay.visible{display:flex;}
-.modal-box{background:var(--bg2);border:2px solid var(--gold);border-radius:14px;padding:2.5rem;width:90%;max-width:380px;text-align:center;animation:popIn 0.25s ease;}
-@keyframes popIn{from{transform:scale(0.85);opacity:0;}to{transform:scale(1);opacity:1;}}
-.modal-icon{font-size:2.8rem;margin-bottom:0.8rem;}
-.modal-title{font-family:'Bebas Neue',sans-serif;font-size:1.8rem;letter-spacing:2px;color:var(--gold2);margin-bottom:0.4rem;}
-.modal-sub{font-size:0.82rem;color:var(--muted);margin-bottom:1.4rem;}
-.modal-input{width:100%;background:var(--bg3);border:1.5px solid rgba(245,168,0,0.3);border-radius:7px;padding:0.75rem 1rem;color:var(--cream);font-family:'DM Sans',sans-serif;font-size:1rem;outline:none;transition:border-color 0.2s;text-align:center;letter-spacing:3px;}
-.modal-input:focus{border-color:var(--gold);}
-.modal-err{color:var(--red);font-size:0.8rem;margin-top:0.5rem;min-height:1.2em;}
-.modal-btn{width:100%;background:var(--gold);color:var(--bg);border:none;padding:0.75rem;border-radius:7px;font-family:'Bebas Neue',sans-serif;font-size:1.1rem;letter-spacing:2px;cursor:pointer;margin-top:1rem;transition:background 0.2s;}
-.modal-btn:hover{background:var(--gold2);}
-.modal-cancel{background:transparent;border:none;color:var(--muted);font-size:0.82rem;cursor:pointer;margin-top:0.8rem;display:block;width:100%;text-align:center;padding:0.3rem;}
-.modal-cancel:hover{color:var(--cream);}
-
-/* ===== ADMIN PANEL ===== */
-.admin-panel{background:var(--bg2);border-bottom:2px solid var(--gold);padding:1.5rem 2rem;display:none;}
-.admin-panel.open{display:block;}
-.admin-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.2rem;flex-wrap:wrap;gap:0.8rem;}
-.admin-ttl{font-family:'Bebas Neue',sans-serif;font-size:1.4rem;color:var(--gold);letter-spacing:2px;}
-.admin-logout{background:rgba(231,76,60,0.15);border:1px solid rgba(231,76,60,0.4);color:var(--red);font-size:0.78rem;padding:0.3rem 0.9rem;border-radius:4px;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s;}
-.admin-logout:hover{background:rgba(231,76,60,0.3);}
-
-/* Admin Tabs */
-.admin-tabs{display:flex;gap:0.5rem;margin-bottom:1.4rem;border-bottom:1px solid rgba(255,255,255,0.08);padding-bottom:0;flex-wrap:wrap;}
-.atab{background:transparent;border:none;border-bottom:2px solid transparent;padding:0.5rem 1.1rem;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:0.85rem;cursor:pointer;transition:all 0.2s;margin-bottom:-1px;}
-.atab.active{color:var(--gold);border-bottom-color:var(--gold);}
-.atab:hover{color:var(--cream2);}
-.atab-pane{display:none;}
-.atab-pane.active{display:block;}
-  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-const firebaseConfig = {
-  apiKey: "AIzaSyCQezfUqZZcdArNzjFKblQNURkvTAPTx8c",
-  authDomain: "smalltownchicken.firebaseapp.com",
-  projectId: "smalltownchicken",
-  storageBucket: "smalltownchicken.firebasestorage.app",
-  messagingSenderId: "322995360672",
-  appId: "1:322995360672:web:7764016fdd314fd294cac5",
-  measurementId: "G-FCELMLDVEF"
-};
-
-/* Prices Tab */
-.admin-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;max-width:900px;}
-.afield{margin-bottom:0.2rem;}
-.afield label{display:block;font-size:0.7rem;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:0.4rem;}
-.afield input,.afield select{width:100%;background:var(--bg3);border:1px solid rgba(245,168,0,0.3);border-radius:5px;padding:0.6rem 1rem;color:var(--cream);font-family:'DM Sans',sans-serif;font-size:0.95rem;outline:none;transition:border-color 0.2s;}
-.afield input:focus,.afield select:focus{border-color:var(--gold);}
-.save-btn{background:var(--gold);color:var(--bg);border:none;padding:0.65rem 2rem;border-radius:5px;font-family:'DM Sans',sans-serif;font-weight:500;font-size:0.95rem;cursor:pointer;margin-top:1.2rem;transition:background 0.2s;}
-.save-btn:hover{background:var(--gold2);}
-.saved-ok{color:#5cb85c;font-size:0.82rem;margin-top:0.5rem;display:none;}
-
-/* Product Availability Tab */
-.avail-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1rem;max-width:700px;}
-.avail-card{background:var(--bg3);border-radius:10px;padding:1.2rem 1.4rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;border:1.5px solid rgba(255,255,255,0.07);transition:border-color 0.2s;}
-.avail-card.available{border-color:rgba(46,204,113,0.35);}
-.avail-card.unavailable{border-color:rgba(231,76,60,0.35);}
-.avail-info{display:flex;align-items:center;gap:0.8rem;}
-.avail-icon{font-size:2rem;}
-.avail-name{font-family:'Lora',serif;font-weight:600;font-size:0.95rem;color:var(--cream);}
-.avail-status{font-size:0.75rem;margin-top:0.15rem;}
-.avail-status.on{color:var(--green);}
-.avail-status.off{color:var(--red);}
-/* Toggle switch */
-.toggle-wrap{position:relative;width:52px;height:28px;flex-shrink:0;}
-.toggle-wrap input{opacity:0;width:0;height:0;position:absolute;}
-.toggle-slider{position:absolute;inset:0;background:#555;border-radius:28px;cursor:pointer;transition:background 0.25s;}
-.toggle-slider::before{content:'';position:absolute;width:20px;height:20px;left:4px;top:4px;background:white;border-radius:50%;transition:transform 0.25s;}
-.toggle-wrap input:checked + .toggle-slider{background:var(--green);}
-.toggle-wrap input:checked + .toggle-slider::before{transform:translateX(24px);}
-
-/* Delivery Persons Tab */
-.dp-list{display:flex;flex-direction:column;gap:0.75rem;max-width:700px;margin-bottom:1.2rem;}
-.dp-item{background:var(--bg3);border-radius:9px;padding:0.9rem 1.1rem;display:flex;align-items:center;gap:0.9rem;border:1px solid rgba(255,255,255,0.07);flex-wrap:wrap;}
-.dp-badge{width:36px;height:36px;border-radius:50%;background:var(--rust);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:1rem;color:white;flex-shrink:0;}
-.dp-details{flex:1;min-width:120px;}
-.dp-dname{font-size:0.92rem;font-weight:500;color:var(--cream);}
-.dp-dphone{font-size:0.78rem;color:var(--muted);margin-top:0.1rem;}
-.dp-active-badge{font-size:0.68rem;background:rgba(46,204,113,0.18);color:var(--green);border:1px solid rgba(46,204,113,0.35);padding:0.18rem 0.6rem;border-radius:20px;margin-left:0.5rem;}
-.dp-actions{display:flex;gap:0.5rem;flex-wrap:wrap;}
-.dp-btn{border:none;padding:0.35rem 0.75rem;border-radius:4px;font-family:'DM Sans',sans-serif;font-size:0.78rem;cursor:pointer;transition:all 0.2s;}
-.dp-btn.set-active{background:rgba(52,152,219,0.18);color:var(--blue);border:1px solid rgba(52,152,219,0.4);}
-.dp-btn.set-active:hover{background:rgba(52,152,219,0.35);}
-.dp-btn.del{background:rgba(231,76,60,0.15);color:var(--red);border:1px solid rgba(231,76,60,0.35);}
-.dp-btn.del:hover{background:rgba(231,76,60,0.3);}
-.dp-btn.edit-dp{background:rgba(245,168,0,0.15);color:var(--gold);border:1px solid rgba(245,168,0,0.35);}
-.dp-btn.edit-dp:hover{background:rgba(245,168,0,0.3);}
-.add-dp-form{background:var(--bg3);border-radius:9px;padding:1rem 1.2rem;max-width:700px;border:1px dashed rgba(245,168,0,0.3);}
-.add-dp-form .form-row{display:flex;gap:0.75rem;flex-wrap:wrap;}
-.add-dp-form input{flex:1;min-width:140px;background:var(--bg2);border:1px solid rgba(245,168,0,0.25);border-radius:5px;padding:0.55rem 0.9rem;color:var(--cream);font-family:'DM Sans',sans-serif;font-size:0.88rem;outline:none;transition:border-color 0.2s;}
-.add-dp-form input:focus{border-color:var(--gold);}
-.add-dp-btn{background:var(--rust);color:white;border:none;padding:0.55rem 1.2rem;border-radius:5px;font-family:'DM Sans',sans-serif;font-size:0.88rem;cursor:pointer;transition:background 0.2s;white-space:nowrap;}
-.add-dp-btn:hover{background:var(--rust2);}
-.add-dp-label{font-size:0.7rem;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:0.6rem;}
-
-/* Schedule Tab */
-.sched-list{display:flex;flex-direction:column;gap:0.6rem;max-width:600px;margin-bottom:1.2rem;}
-.sched-item{background:var(--bg3);border-radius:8px;padding:0.75rem 1rem;display:flex;align-items:center;gap:0.8rem;border:1px solid rgba(255,255,255,0.07);}
-.sched-item.inactive{opacity:0.5;}
-.sched-time-txt{flex:1;font-size:0.9rem;color:var(--cream2);}
-.sched-toggle{flex-shrink:0;}
-.sched-del{background:rgba(231,76,60,0.15);color:var(--red);border:1px solid rgba(231,76,60,0.35);padding:0.28rem 0.65rem;border-radius:4px;font-size:0.75rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s;}
-.sched-del:hover{background:rgba(231,76,60,0.3);}
-.add-slot-form{background:var(--bg3);border-radius:9px;padding:1rem 1.2rem;max-width:600px;border:1px dashed rgba(245,168,0,0.3);}
-.slot-row{display:flex;gap:0.75rem;flex-wrap:wrap;align-items:center;}
-.slot-row input{flex:1;min-width:160px;background:var(--bg2);border:1px solid rgba(245,168,0,0.25);border-radius:5px;padding:0.55rem 0.9rem;color:var(--cream);font-family:'DM Sans',sans-serif;font-size:0.88rem;outline:none;transition:border-color 0.2s;}
-.slot-row input:focus{border-color:var(--gold);}
-.slot-add-btn{background:var(--rust);color:white;border:none;padding:0.55rem 1.2rem;border-radius:5px;font-size:0.88rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:background 0.2s;white-space:nowrap;}
-.slot-add-btn:hover{background:var(--rust2);}
-.sched-hint{font-size:0.75rem;color:var(--muted);margin-bottom:0.7rem;}
-
-/* ===== HERO ===== */
-.hero{padding:3rem 2rem 2.5rem;display:grid;grid-template-columns:1fr auto;align-items:center;gap:2rem;background:var(--bg2);border-bottom:1px solid var(--bg3);position:relative;overflow:hidden;}
-.hero::before{content:'🍗';font-size:20rem;position:absolute;right:-1rem;top:50%;transform:translateY(-50%);opacity:0.04;pointer-events:none;}
-.h-eyebrow{font-size:0.73rem;letter-spacing:3px;text-transform:uppercase;color:var(--rust2);font-weight:500;margin-bottom:0.7rem;}
-.hero h1{font-family:'Bebas Neue',sans-serif;font-size:5rem;line-height:0.92;letter-spacing:2px;color:var(--white);margin-bottom:0.6rem;}
-.hero h1 span{color:var(--rust2);}
-.hero-sub{font-family:'Lora',serif;font-style:italic;color:var(--muted);font-size:0.98rem;line-height:1.65;max-width:400px;}
-.hero-note{margin-top:0.8rem;font-size:0.8rem;color:var(--gold);font-style:italic;}
-
-.price-card{background:var(--bg3);border:2px solid var(--rust);border-radius:10px;padding:1.4rem 1.8rem;text-align:center;min-width:170px;position:relative;z-index:1;}
-.pc-date{font-size:0.68rem;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:0.4rem;}
-.pc-tag{font-size:0.78rem;color:var(--rust2);margin-bottom:0.3rem;}
-.pc-big{font-family:'Bebas Neue',sans-serif;font-size:2.8rem;color:var(--gold2);letter-spacing:1px;line-height:1;}
-.pc-per{font-size:0.72rem;color:var(--muted);}
-.pc-div{border:none;border-top:1px solid rgba(255,255,255,0.07);margin:0.8rem 0;}
-.pc-med{font-family:'Bebas Neue',sans-serif;font-size:2.1rem;color:var(--gold);letter-spacing:1px;line-height:1;}
-
-/* MAIN */
-.main{padding:2.5rem 2rem;max-width:1100px;margin:0 auto;}
-.sec-title{font-family:'Bebas Neue',sans-serif;font-size:1.8rem;letter-spacing:2px;color:var(--cream2);margin-bottom:1.4rem;border-left:4px solid var(--rust);padding-left:1rem;}
-
-/* Products */
-.products{display:grid;grid-template-columns:1fr 1fr;gap:1.2rem;margin-bottom:2.5rem;}
-.prod-card{background:var(--bg2);border:1px solid var(--bg3);border-radius:10px;padding:1.3rem;display:flex;align-items:flex-start;gap:1rem;transition:border-color 0.2s,transform 0.15s;position:relative;}
-.prod-card:hover{border-color:var(--rust);transform:translateY(-2px);}
-.prod-card.out-of-stock{opacity:0.55;pointer-events:none;}
-.unavail-ribbon{position:absolute;top:10px;right:10px;background:var(--red);color:white;font-size:0.68rem;font-weight:600;padding:0.2rem 0.6rem;border-radius:4px;letter-spacing:1px;text-transform:uppercase;}
-.prod-icon{font-size:3.2rem;flex-shrink:0;}
-.prod-info{flex:1;}
-.prod-name{font-family:'Lora',serif;font-weight:600;font-size:1rem;color:var(--cream);margin-bottom:0.2rem;}
-.prod-desc{font-size:0.78rem;color:var(--muted);line-height:1.5;margin-bottom:0.7rem;}
-.prod-price{font-family:'Bebas Neue',sans-serif;font-size:1.5rem;color:var(--gold2);letter-spacing:1px;}
-.prod-price small{font-family:'DM Sans',sans-serif;font-size:0.7rem;color:var(--muted);font-weight:300;}
-.qty-row{display:flex;align-items:center;gap:0.5rem;margin-top:0.5rem;flex-wrap:wrap;}
-.qty-btn{width:30px;height:30px;border-radius:4px;border:1.5px solid var(--bg3);background:transparent;color:var(--cream2);font-size:1.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.15s;line-height:1;}
-.qty-btn:hover{border-color:var(--rust);color:var(--rust);}
-.qty-num{font-size:0.95rem;font-weight:500;min-width:24px;text-align:center;color:var(--cream);}
-.cut-sel{background:var(--bg3);border:1px solid rgba(255,255,255,0.1);border-radius:4px;padding:0.28rem 0.5rem;color:var(--cream);font-family:'DM Sans',sans-serif;font-size:0.78rem;outline:none;margin-top:0.4rem;}
-
-/* Form */
-.form-box{background:var(--bg2);border-radius:12px;padding:2rem;border:1px solid var(--bg3);}
-.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;}
-.fg{margin-bottom:1rem;}
-.fg.full{grid-column:1/-1;}
-.fg label{display:block;font-size:0.7rem;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:0.4rem;}
-.fg input,.fg select,.fg textarea{width:100%;background:var(--bg3);border:1px solid rgba(255,255,255,0.08);border-radius:6px;padding:0.68rem 1rem;color:var(--cream);font-family:'DM Sans',sans-serif;font-size:0.92rem;outline:none;transition:border-color 0.2s;}
-.fg input::placeholder,.fg textarea::placeholder{color:rgba(255,255,255,0.22);}
-.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--rust);}
-.fg select option{background:var(--bg);}
-.fg textarea{height:75px;resize:none;}
-
-/* Map */
-.map-label{font-size:0.7rem;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:0.5rem;display:block;}
-.map-hint{font-size:0.78rem;color:var(--muted);margin-bottom:0.7rem;display:flex;align-items:center;gap:0.4rem;}
-.map-frame-wrap{border-radius:8px;overflow:hidden;border:1px solid var(--bg3);margin-bottom:0.8rem;}
-.map-frame-wrap iframe{width:100%;height:280px;display:block;border:none;}
-.map-open-link{display:inline-flex;align-items:center;gap:0.4rem;font-size:0.82rem;color:var(--rust2);text-decoration:none;margin-bottom:1.2rem;padding:0.4rem 0.9rem;border:1px solid rgba(240,96,32,0.3);border-radius:4px;transition:border-color 0.2s;}
-.map-open-link:hover{border-color:var(--rust2);}
-
-/* Current Delivery Man Banner */
-.delivery-banner{background:var(--bg3);border:1px solid rgba(46,204,113,0.3);border-radius:8px;padding:0.7rem 1.1rem;margin-bottom:1.2rem;display:flex;align-items:center;gap:0.7rem;font-size:0.84rem;color:var(--cream2);}
-.delivery-banner .db-icon{font-size:1.3rem;}
-.delivery-banner strong{color:var(--green);}
-
-/* Summary */
-.summary-box{background:var(--bg3);border-radius:8px;padding:1rem 1.2rem;margin-bottom:1.2rem;border:1px solid rgba(245,168,0,0.15);}
-.summary-box h4{font-family:'Lora',serif;font-size:0.92rem;color:var(--cream2);margin-bottom:0.8rem;padding-bottom:0.6rem;border-bottom:1px solid rgba(255,255,255,0.07);}
-.sum-row{display:flex;justify-content:space-between;font-size:0.85rem;padding:0.22rem 0;color:var(--cream2);opacity:0.8;}
-.sum-total{display:flex;justify-content:space-between;align-items:center;margin-top:0.6rem;padding-top:0.6rem;border-top:1px solid rgba(245,168,0,0.25);}
-.sum-total .sl{font-size:0.85rem;color:var(--muted);}
-.sum-total .sa{font-family:'Bebas Neue',sans-serif;font-size:1.9rem;color:var(--gold2);letter-spacing:1px;}
-
-/* Order btn */
-.order-btn{width:100%;background:var(--rust);color:white;border:none;padding:1rem;border-radius:8px;font-family:'Bebas Neue',sans-serif;font-size:1.25rem;letter-spacing:2px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:0.6rem;transition:background 0.2s,transform 0.15s;}
-.order-btn:hover{background:var(--rust2);transform:translateY(-1px);}
-.wa-note{text-align:center;font-size:0.76rem;color:var(--muted);margin-top:0.5rem;display:flex;align-items:center;justify-content:center;gap:0.4rem;}
-
-/* Toast */
-.toast{position:fixed;bottom:2rem;right:2rem;background:var(--bg2);color:var(--cream2);padding:0.85rem 1.3rem;border-radius:8px;border-left:4px solid var(--gold);font-size:0.88rem;transform:translateY(100px);opacity:0;transition:all 0.3s;z-index:999;box-shadow:0 8px 30px rgba(0,0,0,0.4);max-width:300px;}
-.toast.show{transform:translateY(0);opacity:1;}
-
-/* Success */
-.suc-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.93);z-index:200;align-items:center;justify-content:center;}
-.suc-overlay.visible{display:flex;}
-.suc-box{background:var(--bg2);border:1px solid var(--gold);border-radius:12px;padding:3rem;max-width:420px;text-align:center;}
-.suc-box .sicon{font-size:3.5rem;margin-bottom:1rem;}
-.suc-box h2{font-family:'Bebas Neue',sans-serif;font-size:2.4rem;letter-spacing:2px;color:var(--gold2);margin-bottom:0.6rem;}
-.suc-box p{color:var(--muted);font-family:'Lora',serif;font-style:italic;font-size:0.93rem;line-height:1.7;margin-bottom:2rem;}
-.back-btn{background:var(--rust);color:white;border:none;padding:0.8rem 2.5rem;border-radius:6px;font-family:'Bebas Neue',sans-serif;font-size:1.1rem;letter-spacing:2px;cursor:pointer;transition:background 0.2s;}
-.back-btn:hover{background:var(--rust2);}
-
-footer{background:var(--bg2);border-top:1px solid var(--bg3);padding:1.5rem 2rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;}
-.fl{font-family:'Bebas Neue',sans-serif;color:var(--gold);font-size:1.1rem;letter-spacing:1px;}
-footer p{font-size:0.78rem;color:var(--muted);}
-
-/* Edit DP modal */
-.edit-dp-modal .modal-box{text-align:left;}
-.edit-dp-modal .modal-box input{width:100%;background:var(--bg3);border:1px solid rgba(245,168,0,0.3);border-radius:5px;padding:0.6rem 1rem;color:var(--cream);font-family:'DM Sans',sans-serif;font-size:0.9rem;outline:none;transition:border-color 0.2s;margin-top:0.4rem;letter-spacing:normal;}
-.edit-dp-modal .modal-box input:focus{border-color:var(--gold);}
-.edit-dp-modal .afield{margin-bottom:0.9rem;}
-.edit-dp-modal .modal-btn{margin-top:0.5rem;}
-.edit-actions{display:flex;gap:0.7rem;margin-top:1rem;}
-.edit-actions button{flex:1;}
-
-@media(max-width:680px){
-  .hero{grid-template-columns:1fr;}
-  .price-card{display:none;}
-  .hero h1{font-size:3.2rem;}
-  .products{grid-template-columns:1fr;}
-  .form-grid{grid-template-columns:1fr;}
-  .fg.full{grid-column:1;}
-  .nav-price{display:none;}
-  nav{padding:0 1rem;}
-  .topbar{padding:0.4rem 1rem;}
-  .main{padding:2rem 1rem;}
-  .admin-panel{padding:1.2rem 1rem;}
-  .dp-item{gap:0.6rem;}
-}
-</style>
-</head>
-<body>
-
-<!-- TOP BAR -->
-<div class="topbar">
-  <span>🍗 Small Town Chicken &nbsp;·&nbsp; Fresh Daily &nbsp;·&nbsp; Chennai</span>
-  <button class="admin-toggle" onclick="openAdminLogin()">⚙️ Admin</button>
-</div>
-
-<!-- NAV -->
-<nav>
-  <div class="logo">
-    🍗 Small Town Chicken
-    <span class="logo-sub">homestyle · fresh · delivered</span>
-  </div>
-  <div class="nav-price">
-    <div class="nl">Today's Rate</div>
-    <div class="nv" id="navPrice">Not Set</div>
-  </div>
-</nav>
-
-<!-- ===== ADMIN LOGIN MODAL ===== -->
-<div class="modal-overlay" id="adminLoginModal">
-  <div class="modal-box">
-    <div class="modal-icon">🔐</div>
-    <div class="modal-title">Admin Access</div>
-    <div class="modal-sub">Enter your admin password to continue</div>
-    <input type="password" class="modal-input" id="adminPassInput" placeholder="••••••••"
-      onkeydown="if(event.key==='Enter')checkAdminPass()"/>
-    <div class="modal-err" id="adminPassErr"></div>
-    <button class="modal-btn" onclick="checkAdminPass()">🔓 UNLOCK ADMIN</button>
-    <button class="modal-cancel" onclick="closeAdminLogin()">Cancel</button>
-  </div>
-</div>
-
-<!-- ===== EDIT DELIVERY PERSON MODAL ===== -->
-<div class="modal-overlay edit-dp-modal" id="editDpModal">
-  <div class="modal-box" style="text-align:left;max-width:400px;">
-    <div class="modal-title" style="font-size:1.3rem;">✏️ Edit Delivery Person</div>
-    <div style="margin-top:1rem;">
-      <div class="afield">
-        <label>Full Name</label>
-        <input type="text" id="editDpName" placeholder="e.g. Rajan Kumar"/>
-      </div>
-      <div class="afield">
-        <label>WhatsApp Number (with country code)</label>
-        <input type="tel" id="editDpPhone" placeholder="919876543210"/>
-      </div>
-    </div>
-    <div class="edit-actions">
-      <button class="modal-btn" onclick="saveEditDp()" style="margin-top:0;">💾 Save</button>
-      <button class="modal-cancel" onclick="closeEditDp()" style="border:1px solid rgba(255,255,255,0.15);border-radius:7px;padding:0.75rem;">Cancel</button>
-    </div>
-  </div>
-</div>
-
-<!-- ===== ADMIN PANEL ===== -->
-<div class="admin-panel" id="adminPanel">
-  <div class="admin-header">
-    <div class="admin-ttl">⚙️ Admin Dashboard</div>
-    <button class="admin-logout" onclick="adminLogout()">🔒 Lock Admin</button>
-  </div>
-
-  <!-- TABS -->
-  <div class="admin-tabs">
-    <button class="atab active" onclick="switchTab('prices',this)">💰 Prices</button>
-    <button class="atab" onclick="switchTab('availability',this)">📦 Products</button>
-    <button class="atab" onclick="switchTab('delivery',this)">🛵 Delivery Persons</button>
-    <button class="atab" onclick="switchTab('schedule',this)">⏰ Time Slots</button>
-  </div>
-
-  <!-- TAB: PRICES -->
-  <div class="atab-pane active" id="tab-prices">
-    <div class="admin-grid">
-      <div class="afield">
-        <label>Whole Chicken (₹ / kg)</label>
-        <input type="number" id="adminWhole" placeholder="e.g. 220" min="1"/>
-      </div>
-      <div class="afield">
-        <label>Pieces (₹ / kg)</label>
-        <input type="number" id="adminPieces" placeholder="e.g. 260" min="1"/>
-      </div>
-      <div class="afield">
-        <label>Today's Note (optional)</label>
-        <input type="text" id="adminNote" placeholder="e.g. Extra fresh batch today!"/>
-      </div>
-    </div>
-    <button class="save-btn" onclick="savePrices()">💾 Save &amp; Publish Prices</button>
-    <div class="saved-ok" id="savedOk">✅ Prices live! Customers can now see today's rates.</div>
-  </div>
-
-  <!-- TAB: PRODUCT AVAILABILITY -->
-  <div class="atab-pane" id="tab-availability">
-    <p style="font-size:0.82rem;color:var(--muted);margin-bottom:1rem;">Toggle products on or off. Unavailable products will be hidden from customers.</p>
-    <div class="avail-grid" id="availGrid">
-      <!-- Rendered by JS -->
-    </div>
-  </div>
-
-  <!-- TAB: DELIVERY PERSONS -->
-  <div class="atab-pane" id="tab-delivery">
-    <p style="font-size:0.82rem;color:var(--muted);margin-bottom:1rem;">Manage your delivery team. The <strong style="color:var(--green);">active</strong> person receives all orders via WhatsApp. You can swap instantly.</p>
-    <div class="dp-list" id="dpList"><!-- Rendered by JS --></div>
-    <div class="add-dp-form">
-      <div class="add-dp-label">➕ Add New Delivery Person</div>
-      <div class="form-row">
-        <input type="text" id="newDpName" placeholder="Full Name"/>
-        <input type="tel" id="newDpPhone" placeholder="WhatsApp No. (e.g. 919876543210)"/>
-        <button class="add-dp-btn" onclick="addDeliveryPerson()">Add Person</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- TAB: TIME SLOTS -->
-  <div class="atab-pane" id="tab-schedule">
-    <p class="sched-hint">Toggle slots on/off to control what customers can select. Delete or add custom slots.</p>
-    <div class="sched-list" id="schedList"><!-- Rendered by JS --></div>
-    <div class="add-slot-form">
-      <div class="add-dp-label">➕ Add New Time Slot</div>
-      <div class="slot-row">
-        <input type="text" id="newSlotTxt" placeholder="e.g. 6 AM – 8 AM (Early Bird)"/>
-        <button class="slot-add-btn" onclick="addTimeSlot()">Add Slot</button>
-      </div>
-    </div>
-  </div>
-
-</div><!-- /admin-panel -->
-
-<!-- HERO -->
-<section class="hero">
-  <div>
-    <div class="h-eyebrow">📍 Chennai's Freshest Chicken</div>
-    <h1>SMALL<br>TOWN<br><span>CHICKEN.</span></h1>
-    <p class="hero-sub">Farm-fresh chicken — whole or pieces — priced fresh every single day. Order now, delivered straight to you.</p>
-    <p class="hero-note" id="heroNote"></p>
-  </div>
-  <div class="price-card">
-    <div class="pc-date" id="pcDate">—</div>
-    <div class="pc-tag">🐔 Whole Chicken</div>
-    <div class="pc-big" id="pcWhole">—</div>
-    <div class="pc-per">per kilogram</div>
-    <hr class="pc-div">
-    <div class="pc-tag">🍗 Pieces</div>
-    <div class="pc-med" id="pcPieces">—</div>
-    <div class="pc-per">per kilogram</div>
-  </div>
-</section>
-
-<!-- MAIN -->
-<div class="main">
-
-  <div class="sec-title">📦 Select Your Order</div>
-
-  <div class="products" id="productsGrid">
-
-    <!-- Whole Chicken -->
-    <div class="prod-card" id="cardWhole">
-      <div class="unavail-ribbon" id="wholeRibbon" style="display:none;">Unavailable</div>
-      <div class="prod-icon">🐔</div>
-      <div class="prod-info">
-        <div class="prod-name">Whole Chicken</div>
-        <div class="prod-desc">Fresh whole chicken, cleaned &amp; ready. Perfect for full curries, roasts &amp; family meals.</div>
-        <div class="prod-price" id="wholePriceDisp">₹— <small>/kg</small></div>
-        <div class="qty-row">
-          <button class="qty-btn" onclick="changeQty('w',-0.5)">−</button>
-          <span class="qty-num" id="wQty">0</span>
-          <button class="qty-btn" onclick="changeQty('w',0.5)">+</button>
-          <span style="font-size:0.78rem;color:var(--muted);">kg</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- Pieces -->
-    <div class="prod-card" id="cardPieces">
-      <div class="unavail-ribbon" id="piecesRibbon" style="display:none;">Unavailable</div>
-      <div class="prod-icon">🍗</div>
-      <div class="prod-info">
-        <div class="prod-name">Chicken Pieces</div>
-        <div class="prod-desc">Cleaned &amp; cut fresh to order. Choose your preferred cut below.</div>
-        <div class="prod-price" id="piecesPriceDisp">₹— <small>/kg</small></div>
-        <div class="qty-row">
-          <button class="qty-btn" onclick="changeQty('p',-0.5)">−</button>
-          <span class="qty-num" id="pQty">0</span>
-          <button class="qty-btn" onclick="changeQty('p',0.5)">+</button>
-          <span style="font-size:0.78rem;color:var(--muted);">kg</span>
-        </div>
-        <select class="cut-sel" id="cutType" onchange="updateSummary()">
-          <option>Mixed Cut</option>
-          <option>Breast Pieces</option>
-          <option>Leg Pieces</option>
-          <option>Wings</option>
-          <option>Boneless</option>
-        </select>
-      </div>
-    </div>
-
-  </div><!-- /products -->
-
-  <!-- FORM -->
-  <div class="form-box">
-    <div class="sec-title" style="font-size:1.4rem;margin-bottom:1.5rem;">🗺️ Delivery Details</div>
-
-    <!-- Active Delivery Person Banner -->
-    <div class="delivery-banner" id="deliveryBanner" style="display:none;">
-      <span class="db-icon">🛵</span>
-      <span>Your order will be handled by <strong id="bannerDpName">—</strong></span>
-    </div>
-
-    <div class="form-grid">
-      <div class="fg">
-        <label>Your Name</label>
-        <input type="text" id="cName" placeholder="Ramesh Kumar"/>
-      </div>
-      <div class="fg">
-        <label>Mobile Number</label>
-        <input type="tel" id="cPhone" placeholder="+91 98765 43210"/>
-      </div>
-      <div class="fg full">
-        <label>Street Address</label>
-        <input type="text" id="cAddress" placeholder="Door no, Street, Area, Chennai…"/>
-      </div>
-      <div class="fg">
-        <label>Pincode</label>
-        <input type="text" id="cPincode" placeholder="600001"/>
-      </div>
-      <div class="fg">
-        <label>Delivery Time Slot</label>
-        <select id="cSlot">
-          <option value="">Select a slot</option>
-        </select>
-      </div>
-      <div class="fg full">
-        <label>Special Instructions</label>
-        <textarea id="cNotes" placeholder="Skinless? Extra clean? Any preferences…"></textarea>
-      </div>
-    </div>
-
-    <!-- GOOGLE MAP -->
-    <span class="map-label">📍 Pin Your Delivery Location</span>
-    <div class="map-hint">
-      <span>1.</span> Open Google Maps → find your home → tap Share → Copy Link &nbsp;
-      <span>2.</span> Paste the link below
-    </div>
-
-    <div class="map-frame-wrap">
-      <iframe id="mapFrame"
-        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d497698.99710147745!2d79.87893!3d13.0478!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3a5265ea4f7d3361%3A0x6e61a70b6863d433!2sChennai%2C%20Tamil%20Nadu!5e0!3m2!1sen!2sin!4v1234567890"
-        allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade">
-      </iframe>
-    </div>
-
-    <div class="fg" style="margin-top:0.7rem;">
-      <label>Paste Google Maps Link Here</label>
-      <input type="text" id="mapLink" placeholder="https://maps.google.com/?q=… paste your link here"/>
-    </div>
-
-    <a class="map-open-link" href="https://maps.google.com" target="_blank">
-      🗺️ Open Google Maps to get my location link →
-    </a>
-
-    <!-- SUMMARY -->
-    <div class="summary-box">
-      <h4>🧾 Order Summary</h4>
-      <div id="sumRows"><div style="font-size:0.83rem;color:var(--muted);font-style:italic;">No items selected yet</div></div>
-      <div class="sum-total">
-        <span class="sl">Total Amount</span>
-        <span class="sa" id="sumTotal">₹0</span>
-      </div>
-    </div>
-
-    <button class="order-btn" onclick="placeOrder()">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg">
-        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
-        <path d="M12 0C5.373 0 0 5.373 0 12c0 2.127.558 4.126 1.528 5.858L0 24l6.341-1.508A11.942 11.942 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.882a9.88 9.88 0 01-4.967-1.34l-.356-.212-3.765.896.952-3.671-.232-.375A9.855 9.855 0 012.118 12c0-5.449 4.433-9.882 9.882-9.882 5.449 0 9.882 4.433 9.882 9.882 0 5.449-4.433 9.882-9.882 9.882z"/>
-      </svg>
-      SEND ORDER VIA WHATSAPP
-    </button>
-    <p class="wa-note">📱 Opens WhatsApp &amp; sends full order details to your delivery team instantly</p>
-  </div>
-
-</div><!-- /main -->
-
-<footer>
-  <div class="fl">🍗 Small Town Chicken</div>
-  <p>© 2026 Small Town Chicken · Chennai, Tamil Nadu · Fresh Every Day</p>
-  <p style="color:var(--rust2);">📞 +91 98765 00000</p>
-</footer>
-
-<!-- TOAST -->
-<div class="toast" id="toast"></div>
-
-<!-- SUCCESS -->
-<div class="suc-overlay" id="sucOverlay">
-  <div class="suc-box">
-    <div class="sicon">✅</div>
-    <h2>ORDER SENT!</h2>
-    <p>Your order has been sent to our delivery team via WhatsApp. They will confirm and arrive at your door shortly. Thank you for choosing Small Town Chicken!</p>
-    <button class="back-btn" onclick="closeSuccess()">BACK TO MENU</button>
-  </div>
-</div>
-
-<script>
-/* =====================================================================
-   ADMIN PASSWORD — change this to your desired password
-   ===================================================================== */
-const ADMIN_PASSWORD = 'chicken@2026';
-
-/* =====================================================================
-   STATE
-   ===================================================================== */
-const STORE_KEY = 'stc_v3';
-
-const defaultState = {
-  wp: 0, pp: 0, note: '',
-  wholeAvail: true, piecesAvail: true,
-  deliveryPersons: [
-    { id: 1, name: 'Rajan Kumar', phone: '919876543210', active: true }
-  ],
-  timeSlots: [
-    { id: 1, label: '7 AM – 9 AM (Early Morning)', active: true },
-    { id: 2, label: '9 AM – 12 PM (Morning)',      active: true },
-    { id: 3, label: '12 PM – 3 PM (Afternoon)',    active: true },
-    { id: 4, label: '4 PM – 7 PM (Evening)',       active: true },
-  ]
-};
-
-let S = JSON.parse(JSON.stringify(defaultState));
-let Qty = { w: 0, p: 0 };
-let adminUnlocked = false;
-let editingDpId = null;
-
-/* =====================================================================
-   PERSISTENCE
-   ===================================================================== */
-function saveState() {
-  localStorage.setItem(STORE_KEY, JSON.stringify(S));
-}
-function loadState() {
-  const raw = localStorage.getItem(STORE_KEY);
-  if (raw) {
-    try {
-      const saved = JSON.parse(raw);
-      // Merge saved over defaults so new keys always exist
-      S = Object.assign({}, defaultState, saved);
-      if (!S.deliveryPersons || !S.deliveryPersons.length) S.deliveryPersons = defaultState.deliveryPersons;
-      if (!S.timeSlots || !S.timeSlots.length) S.timeSlots = defaultState.timeSlots;
-    } catch(e) { S = JSON.parse(JSON.stringify(defaultState)); }
-  }
+/* ─────────────────────────────────────────────────────
+   ROOT VARIABLES – Palette
+   ───────────────────────────────────────────────────── */
+:root {
+  --bg-dark: #0f0f0f;
+  --bg-card: #1a1a1a;
+  --bg-input: #252525;
+  --primary: #e85d04; /* Burnt Orange */
+  --primary-hover: #f48c06;
+  --accent: #faa307; /* Golden Yellow */
+  --text-light: #fdfdfd;
+  --text-muted: #a3a3a3;
+  --success: #38b000;
+  --error: #d00000;
+  --border: #333333;
+  --radius: 12px;
+  --shadow: 0 4px 20px rgba(0,0,0,0.3);
 }
 
-/* =====================================================================
-   ADMIN AUTH
-   ===================================================================== */
-function openAdminLogin() {
-  if (adminUnlocked) {
-    document.getElementById('adminPanel').classList.toggle('open');
-    return;
-  }
-  document.getElementById('adminPassInput').value = '';
-  document.getElementById('adminPassErr').textContent = '';
-  document.getElementById('adminLoginModal').classList.add('visible');
-  setTimeout(() => document.getElementById('adminPassInput').focus(), 200);
+/* ─────────────────────────────────────────────────────
+   RESET & BASE STYLES
+   ───────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background-color: var(--bg-dark);
+  color: var(--text-light);
+  line-height: 1.6;
+  min-height: 100vh;
+  overflow-x: hidden;
 }
 
-function closeAdminLogin() {
-  document.getElementById('adminLoginModal').classList.remove('visible');
+img { max-width: 100%; height: auto; display: block; }
+button, input, select, textarea { font-family: inherit; outline: none; }
+a { color: inherit; text-decoration: none; }
+
+/* ─────────────────────────────────────────────────────
+   HEADER & NAVIGATION
+   ───────────────────────────────────────────────────── */
+.top-bar {
+  background: linear-gradient(to right, #000, var(--bg-card));
+  border-bottom: 1px solid var(--border);
+  padding: 0.75rem 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 100;
 }
 
-function checkAdminPass() {
-  const val = document.getElementById('adminPassInput').value;
-  if (val === ADMIN_PASSWORD) {
-    adminUnlocked = true;
-    closeAdminLogin();
-    document.getElementById('adminPanel').classList.add('open');
-    renderAdminUI();
-    showToast('✅ Admin unlocked!');
-  } else {
-    document.getElementById('adminPassErr').textContent = '❌ Wrong password. Try again.';
-    document.getElementById('adminPassInput').value = '';
-    document.getElementById('adminPassInput').focus();
-  }
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
 }
 
-function adminLogout() {
-  adminUnlocked = false;
-  document.getElementById('adminPanel').classList.remove('open');
-  showToast('🔒 Admin locked.');
+.brand-icon {
+  font-size: 1.75rem;
+  filter: drop-shadow(0 0 8px rgba(232, 93, 4, 0.4));
 }
 
-/* =====================================================================
-   TABS
-   ===================================================================== */
-function switchTab(id, btn) {
-  document.querySelectorAll('.atab').forEach(t => t.classList.remove('active'));
-  document.querySelectorAll('.atab-pane').forEach(p => p.classList.remove('active'));
-  btn.classList.add('active');
-  document.getElementById('tab-' + id).classList.add('active');
+.brand-name {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.4rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  color: var(--text-light);
 }
 
-/* =====================================================================
-   RENDER ALL ADMIN UI
-   ===================================================================== */
-function renderAdminUI() {
-  // Populate price fields
-  document.getElementById('adminWhole').value = S.wp || '';
-  document.getElementById('adminPieces').value = S.pp || '';
-  document.getElementById('adminNote').value = S.note || '';
-  renderAvailability();
-  renderDeliveryPersons();
-  renderSchedule();
+.brand-tagline {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  display: block;
 }
 
-/* =====================================================================
-   PRICES
-   ===================================================================== */
-function savePrices() {
-  const wp = parseFloat(document.getElementById('adminWhole').value);
-  const pp = parseFloat(document.getElementById('adminPieces').value);
-  const nt = document.getElementById('adminNote').value.trim();
-  if (!wp || !pp) { showToast('⚠️ Please enter both prices!'); return; }
-  S.wp = wp; S.pp = pp; S.note = nt;
-  saveState();
-  const el = document.getElementById('savedOk');
-  el.style.display = 'block';
-  setTimeout(() => el.style.display = 'none', 3500);
-  renderPrices();
-  showToast('✅ Today\'s prices are now live!');
+.top-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
 }
 
-function renderPrices() {
-  const today = new Date().toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' });
-  document.getElementById('pcDate').textContent = today;
-  document.getElementById('pcWhole').textContent = S.wp ? '₹' + S.wp : '—';
-  document.getElementById('pcPieces').textContent = S.pp ? '₹' + S.pp : '—';
-  document.getElementById('navPrice').textContent = S.wp ? '₹' + S.wp + '/kg' : 'Not Set';
-  document.getElementById('wholePriceDisp').innerHTML = S.wp ? '₹' + S.wp + '<small> /kg</small>' : '₹— <small>/kg</small>';
-  document.getElementById('piecesPriceDisp').innerHTML = S.pp ? '₹' + S.pp + '<small> /kg</small>' : '₹— <small>/kg</small>';
-  document.getElementById('heroNote').textContent = S.note ? '📢 ' + S.note : '';
-  updateSummary();
+.price-badge {
+  background: var(--bg-input);
+  padding: 0.4rem 1rem;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  border: 1px solid var(--primary);
+  display: none; /* Hidden until price loaded */
 }
 
-/* =====================================================================
-   PRODUCT AVAILABILITY
-   ===================================================================== */
-function renderAvailability() {
-  const products = [
-    { key: 'wholeAvail', icon: '🐔', name: 'Whole Chicken' },
-    { key: 'piecesAvail', icon: '🍗', name: 'Chicken Pieces' }
-  ];
-  const grid = document.getElementById('availGrid');
-  grid.innerHTML = products.map(p => `
-    <div class="avail-card ${S[p.key] ? 'available' : 'unavailable'}" id="avcard-${p.key}">
-      <div class="avail-info">
-        <div class="avail-icon">${p.icon}</div>
-        <div>
-          <div class="avail-name">${p.name}</div>
-          <div class="avail-status ${S[p.key] ? 'on' : 'off'}" id="avstat-${p.key}">
-            ${S[p.key] ? '● Available' : '● Unavailable'}
-          </div>
-        </div>
-      </div>
-      <label class="toggle-wrap">
-        <input type="checkbox" ${S[p.key] ? 'checked' : ''} onchange="toggleProduct('${p.key}', this.checked)"/>
-        <div class="toggle-slider"></div>
-      </label>
-    </div>
-  `).join('');
+@media(min-width: 768px) { .price-badge { display: block; } }
 
-  // Apply to product cards
-  applyAvailability();
+.btn-icon {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: 1.25rem;
+  cursor: pointer;
+  position: relative;
+  transition: color 0.2s;
+}
+.btn-icon:hover { color: var(--text-light); }
+
+.cart-count {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background: var(--primary);
+  color: white;
+  font-size: 0.65rem;
+  font-weight: 700;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-function toggleProduct(key, val) {
-  S[key] = val;
-  saveState();
-  // Update card style
-  const card = document.getElementById('avcard-' + key);
-  const stat = document.getElementById('avstat-' + key);
-  if (card) {
-    card.className = 'avail-card ' + (val ? 'available' : 'unavailable');
-    stat.className = 'avail-status ' + (val ? 'on' : 'off');
-    stat.textContent = val ? '● Available' : '● Unavailable';
-  }
-  applyAvailability();
-  showToast(val ? '✅ Product is now available.' : '🚫 Product marked unavailable.');
+.admin-btn {
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  padding: 0.4rem 0.8rem;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.admin-btn:hover { border-color: var(--text-muted); color: var(--text-light); }
+
+/* ─────────────────────────────────────────────────────
+   HERO SECTION
+   ───────────────────────────────────────────────────── */
+.hero {
+  padding: 3rem 1.5rem;
+  background: linear-gradient(to bottom, rgba(0,0,0,0.7), var(--bg-dark)), 
+              url('https://images.unsplash.com/photo-1587593810167-a84920ea0781?auto=format&fit=crop&w=1200&q=80');
+  background-size: cover;
+  background-position: center;
+  text-align: center;
+  min-height: 60vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  position: relative;
 }
 
-function applyAvailability() {
-  const cardW = document.getElementById('cardWhole');
-  const cardP = document.getElementById('cardPieces');
-  const ribW  = document.getElementById('wholeRibbon');
-  const ribP  = document.getElementById('piecesRibbon');
-  if (S.wholeAvail) {
-    cardW.classList.remove('out-of-stock');
-    ribW.style.display = 'none';
-  } else {
-    cardW.classList.add('out-of-stock');
-    ribW.style.display = 'block';
-    Qty.w = 0;
-    document.getElementById('wQty').textContent = 0;
-  }
-  if (S.piecesAvail) {
-    cardP.classList.remove('out-of-stock');
-    ribP.style.display = 'none';
-  } else {
-    cardP.classList.add('out-of-stock');
-    ribP.style.display = 'block';
-    Qty.p = 0;
-    document.getElementById('pQty').textContent = 0;
-  }
-  updateSummary();
+.hero::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 100px;
+  background: linear-gradient(to top, var(--bg-dark), transparent);
 }
 
-/* =====================================================================
-   DELIVERY PERSONS
-   ===================================================================== */
-function renderDeliveryPersons() {
-  const list = document.getElementById('dpList');
-  if (!S.deliveryPersons.length) {
-    list.innerHTML = '<p style="color:var(--muted);font-size:0.85rem;">No delivery persons added yet.</p>';
-    updateDeliveryBanner();
-    return;
-  }
-  list.innerHTML = S.deliveryPersons.map(dp => {
-    const initials = dp.name.split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase();
-    return `
-      <div class="dp-item">
-        <div class="dp-badge">${initials}</div>
-        <div class="dp-details">
-          <div class="dp-dname">
-            ${dp.name}
-            ${dp.active ? '<span class="dp-active-badge">● ACTIVE</span>' : ''}
-          </div>
-          <div class="dp-dphone">📱 +${dp.phone}</div>
-        </div>
-        <div class="dp-actions">
-          ${!dp.active ? `<button class="dp-btn set-active" onclick="setActiveDp(${dp.id})">⚡ Set Active</button>` : ''}
-          <button class="dp-btn edit-dp" onclick="openEditDp(${dp.id})">✏️ Edit</button>
-          <button class="dp-btn del" onclick="deleteDp(${dp.id})">🗑️ Remove</button>
-        </div>
-      </div>
-    `;
-  }).join('');
-  updateDeliveryBanner();
+.hero-content {
+  position: relative;
+  z-index: 2;
+  max-width: 600px;
 }
 
-function addDeliveryPerson() {
-  const name  = document.getElementById('newDpName').value.trim();
-  const phone = document.getElementById('newDpPhone').value.trim();
-  if (!name)  { showToast('⚠️ Enter delivery person\'s name.'); return; }
-  if (!phone) { showToast('⚠️ Enter WhatsApp number with country code.'); return; }
-  const id = Date.now();
-  S.deliveryPersons.push({ id, name, phone, active: false });
-  saveState();
-  document.getElementById('newDpName').value = '';
-  document.getElementById('newDpPhone').value = '';
-  renderDeliveryPersons();
-  showToast('✅ Delivery person added!');
+.hero-eyebrow {
+  color: var(--primary);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  font-size: 0.85rem;
+  margin-bottom: 1rem;
 }
 
-function setActiveDp(id) {
-  S.deliveryPersons = S.deliveryPersons.map(dp => ({ ...dp, active: dp.id === id }));
-  saveState();
-  renderDeliveryPersons();
-  showToast('⚡ Active delivery person updated!');
+.hero h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: 3.5rem;
+  line-height: 1.1;
+  margin-bottom: 1rem;
+  text-shadow: 0 2px 20px rgba(0,0,0,0.5);
 }
 
-function deleteDp(id) {
-  const dp = S.deliveryPersons.find(d => d.id === id);
-  if (dp && dp.active && S.deliveryPersons.length > 1) {
-    showToast('⚠️ Set another person as active before removing this one.');
-    return;
-  }
-  S.deliveryPersons = S.deliveryPersons.filter(d => d.id !== id);
-  saveState();
-  renderDeliveryPersons();
-  showToast('🗑️ Delivery person removed.');
+.hero h1 span { color: var(--primary); }
+
+.hero-desc {
+  font-size: 1.1rem;
+  color: #ddd;
+  margin-bottom: 2rem;
 }
 
-function openEditDp(id) {
-  editingDpId = id;
-  const dp = S.deliveryPersons.find(d => d.id === id);
-  if (!dp) return;
-  document.getElementById('editDpName').value = dp.name;
-  document.getElementById('editDpPhone').value = dp.phone;
-  document.getElementById('editDpModal').classList.add('visible');
-  setTimeout(() => document.getElementById('editDpName').focus(), 150);
+.hero-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--primary);
+  color: white;
+  padding: 0.9rem 2rem;
+  border-radius: 30px;
+  font-weight: 600;
+  font-size: 1rem;
+  transition: transform 0.2s, box-shadow 0.2s;
+  box-shadow: 0 4px 15px rgba(232, 93, 4, 0.4);
+}
+.hero-cta:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(232, 93, 4, 0.6);
+  background: var(--primary-hover);
 }
 
-function closeEditDp() {
-  editingDpId = null;
-  document.getElementById('editDpModal').classList.remove('visible');
+/* ─────────────────────────────────────────────────────
+   DAILY PRICING CARD
+   ───────────────────────────────────────────────────── */
+.pricing-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  margin: -2rem auto 2rem;
+  position: relative;
+  z-index: 10;
+  max-width: 320px;
+  box-shadow: var(--shadow);
 }
 
-function saveEditDp() {
-  const name  = document.getElementById('editDpName').value.trim();
-  const phone = document.getElementById('editDpPhone').value.trim();
-  if (!name || !phone) { showToast('⚠️ Fill in all fields.'); return; }
-  S.deliveryPersons = S.deliveryPersons.map(dp =>
-    dp.id === editingDpId ? { ...dp, name, phone } : dp
-  );
-  saveState();
-  closeEditDp();
-  renderDeliveryPersons();
-  showToast('✅ Details updated!');
+.pc-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--border);
 }
 
-function updateDeliveryBanner() {
-  const active = S.deliveryPersons.find(d => d.active);
-  const banner = document.getElementById('deliveryBanner');
-  const nameEl = document.getElementById('bannerDpName');
-  if (active) {
-    banner.style.display = 'flex';
-    nameEl.textContent = active.name;
-  } else {
-    banner.style.display = 'none';
-  }
+.pc-date { font-size: 0.8rem; color: var(--text-muted); }
+.pc-note { font-size: 0.75rem; color: var(--primary); background: rgba(232,93,4,0.1); padding: 0.2rem 0.5rem; border-radius: 4px; }
+
+.pc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+.pc-item { text-align: center; }
+.pc-icon { font-size: 1.5rem; margin-bottom: 0.25rem; }
+.pc-name { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; }
+.pc-price { font-family: 'Playfair Display', serif; font-size: 1.75rem; color: var(--accent); }
+.pc-per { font-size: 0.7rem; color: var(--text-muted); }
+
+/* ─────────────────────────────────────────────────────
+   MAIN CONTENT & PRODUCTS
+   ───────────────────────────────────────────────────── */
+.container { max-width: 1100px; margin: 0 auto; padding: 0 1.5rem; }
+
+.section-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.75rem;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+.section-title::before {
+  content: '';
+  width: 4px;
+  height: 24px;
+  background: var(--primary);
+  border-radius: 2px;
 }
 
-/* =====================================================================
-   TIME SLOTS
-   ===================================================================== */
-function renderSchedule() {
-  const list = document.getElementById('schedList');
-  if (!S.timeSlots.length) {
-    list.innerHTML = '<p style="color:var(--muted);font-size:0.85rem;">No time slots configured.</p>';
-    rebuildSlotDropdown();
-    return;
-  }
-  list.innerHTML = S.timeSlots.map(slot => `
-    <div class="sched-item ${slot.active ? '' : 'inactive'}">
-      <span class="sched-time-txt">${slot.active ? '🟢' : '🔴'} ${slot.label}</span>
-      <label class="toggle-wrap sched-toggle">
-        <input type="checkbox" ${slot.active ? 'checked' : ''} onchange="toggleSlot(${slot.id}, this.checked)"/>
-        <div class="toggle-slider"></div>
-      </label>
-      <button class="sched-del" onclick="deleteSlot(${slot.id})">✕ Delete</button>
-    </div>
-  `).join('');
-  rebuildSlotDropdown();
+.products-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 3rem;
 }
 
-function toggleSlot(id, val) {
-  S.timeSlots = S.timeSlots.map(s => s.id === id ? { ...s, active: val } : s);
-  saveState();
-  renderSchedule();
+.product-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  transition: transform 0.3s, border-color 0.3s;
+}
+.product-card:hover { transform: translateY(-5px); border-color: var(--primary); }
+.product-card.out-of-stock { opacity: 0.6; pointer-events: none; filter: grayscale(0.8); }
+
+.prod-img {
+  height: 180px;
+  background: var(--bg-input);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 4rem;
+  position: relative;
 }
 
-function addTimeSlot() {
-  const txt = document.getElementById('newSlotTxt').value.trim();
-  if (!txt) { showToast('⚠️ Enter a time slot label.'); return; }
-  S.timeSlots.push({ id: Date.now(), label: txt, active: true });
-  saveState();
-  document.getElementById('newSlotTxt').value = '';
-  renderSchedule();
-  showToast('✅ Time slot added!');
+.unavail-badge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: var(--error);
+  color: white;
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 0.25rem 0.75rem;
+  border-radius: 4px;
+  text-transform: uppercase;
 }
 
-function deleteSlot(id) {
-  S.timeSlots = S.timeSlots.filter(s => s.id !== id);
-  saveState();
-  renderSchedule();
-  showToast('🗑️ Time slot removed.');
+.prod-body { padding: 1.25rem; }
+.prod-name { font-family: 'Playfair Display', serif; font-size: 1.25rem; margin-bottom: 0.5rem; }
+.prod-desc { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem; min-height: 40px; }
+.prod-price { font-size: 1.25rem; color: var(--accent); margin-bottom: 1rem; }
+
+.qty-control {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--bg-input);
+  border-radius: 8px;
+  padding: 0.25rem;
 }
 
-function rebuildSlotDropdown() {
-  const sel = document.getElementById('cSlot');
-  const prev = sel.value;
-  sel.innerHTML = '<option value="">Select a slot</option>';
-  S.timeSlots.filter(s => s.active).forEach(s => {
-    const opt = document.createElement('option');
-    opt.value = s.label;
-    opt.textContent = s.label;
-    sel.appendChild(opt);
-  });
-  sel.value = prev; // restore if still valid
+.qty-btn {
+  width: 36px;
+  height: 36px;
+  border: none;
+  background: transparent;
+  color: var(--text-light);
+  font-size: 1.25rem;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: background 0.2s;
+}
+.qty-btn:hover { background: var(--bg-card); }
+.qty-btn:disabled { color: var(--text-muted); cursor: not-allowed; }
+
+.qty-display {
+  font-weight: 600;
+  font-size: 1.1rem;
+  min-width: 50px;
+  text-align: center;
 }
 
-/* =====================================================================
-   QTY & SUMMARY
-   ===================================================================== */
-function changeQty(type, delta) {
-  if (type === 'w') {
-    Qty.w = Math.max(0, Math.round((Qty.w + delta) * 10) / 10);
-    document.getElementById('wQty').textContent = Qty.w;
-  } else {
-    Qty.p = Math.max(0, Math.round((Qty.p + delta) * 10) / 10);
-    document.getElementById('pQty').textContent = Qty.p;
-  }
-  updateSummary();
+.prod-cut-select {
+  width: 100%;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  color: var(--text-light);
+  padding: 0.5rem;
+  border-radius: 6px;
+  margin-top: 0.75rem;
+  font-size: 0.85rem;
 }
 
-function updateSummary() {
-  const wT = Qty.w * S.wp;
-  const pT = Qty.p * S.pp;
-  const grand = wT + pT;
-  const cut = document.getElementById('cutType').value;
-  let rows = '';
-  if (Qty.w > 0 && S.wp > 0) rows += `<div class="sum-row"><span>🐔 Whole Chicken × ${Qty.w}kg</span><span>₹${wT}</span></div>`;
-  if (Qty.p > 0 && S.pp > 0) rows += `<div class="sum-row"><span>🍗 ${cut} × ${Qty.p}kg</span><span>₹${pT}</span></div>`;
-  if (!rows) rows = '<div style="font-size:0.83rem;color:var(--muted);font-style:italic;">No items selected yet</div>';
-  document.getElementById('sumRows').innerHTML = rows;
-  document.getElementById('sumTotal').textContent = '₹' + grand;
+/* ─────────────────────────────────────────────────────
+   CHECKOUT FORM
+   ───────────────────────────────────────────────────── */
+.checkout-section {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 2rem;
+  margin-bottom: 3rem;
 }
 
-/* =====================================================================
-   ORDER
-   ===================================================================== */
-function placeOrder() {
-  const name    = document.getElementById('cName').value.trim();
-  const phone   = document.getElementById('cPhone').value.trim();
-  const addr    = document.getElementById('cAddress').value.trim();
-  const pin     = document.getElementById('cPincode').value.trim();
-  const slot    = document.getElementById('cSlot').value;
-  const notes   = document.getElementById('cNotes').value.trim();
-  const mapLink = document.getElementById('mapLink').value.trim();
-  const cut     = document.getElementById('cutType').value;
-
-  if (!S.wp || !S.pp) { showToast('⚠️ Prices not set yet! Please wait for admin to set today\'s price.'); return; }
-  if (!name)  { showToast('Please enter your name.'); return; }
-  if (!phone) { showToast('Please enter your mobile number.'); return; }
-  if (!addr)  { showToast('Please enter your delivery address.'); return; }
-  if (!slot)  { showToast('Please select a delivery time slot.'); return; }
-  if (Qty.w === 0 && Qty.p === 0) { showToast('Please add at least one item!'); return; }
-
-  const active = S.deliveryPersons.find(d => d.active);
-  if (!active) { showToast('⚠️ No active delivery person set. Please contact us directly.'); return; }
-
-  const wT = Qty.w * S.wp;
-  const pT = Qty.p * S.pp;
-  const grand = wT + pT;
-  const today = new Date().toLocaleDateString('en-IN');
-
-  let lines = '';
-  if (Qty.w > 0) lines += `🐔 Whole Chicken: ${Qty.w}kg × ₹${S.wp}/kg = ₹${wT}\n`;
-  if (Qty.p > 0) lines += `🍗 ${cut}: ${Qty.p}kg × ₹${S.pp}/kg = ₹${pT}\n`;
-
-  const msg =
-`🍗 *NEW ORDER — Small Town Chicken*
-📅 Date: ${today}
-
-👤 *Customer:* ${name}
-📱 *Phone:* ${phone}
-🏠 *Address:* ${addr}${pin ? ', ' + pin : ''}
-⏰ *Slot:* ${slot}
-
-📦 *ORDER DETAILS:*
-${lines}
-💰 *TOTAL: ₹${grand}*
-${notes ? '\n📝 Notes: ' + notes : ''}
-${mapLink ? '\n📍 Map Location:\n' + mapLink : '\n📍 Location: Not shared (call customer)'}
-
-✅ Please confirm delivery. Thank you!`;
-
-  const waURL = `https://wa.me/${active.phone}?text=${encodeURIComponent(msg)}`;
-  window.open(waURL, '_blank');
-  setTimeout(() => document.getElementById('sucOverlay').classList.add('visible'), 600);
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.25rem;
+  margin-bottom: 1.5rem;
 }
 
-function closeSuccess() {
-  document.getElementById('sucOverlay').classList.remove('visible');
-  Qty.w = 0; Qty.p = 0;
-  document.getElementById('wQty').textContent = 0;
-  document.getElementById('pQty').textContent = 0;
-  ['cName', 'cPhone', 'cAddress', 'cPincode', 'cNotes', 'mapLink'].forEach(id => document.getElementById(id).value = '');
-  document.getElementById('cSlot').value = '';
-  updateSummary();
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+.form-group { display: flex; flex-direction: column; gap: 0.5rem; }
+.form-group.full-width { grid-column: 1 / -1; }
+
+.form-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
-/* =====================================================================
-   TOAST
-   ===================================================================== */
-function showToast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 3500);
+.form-input, .form-select, .form-textarea {
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  color: var(--text-light);
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  transition: border-color 0.2s;
+}
+.form-input:focus, .form-select:focus, .form-textarea:focus { border-color: var(--primary); }
+.form-input.error { border-color: var(--error); }
+.form-textarea { min-height: 80px; resize: vertical; }
+
+.map-box {
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1rem;
 }
 
-/* =====================================================================
-   INIT
-   ===================================================================== */
-document.addEventListener('DOMContentLoaded', () => {
-  loadState();
-  renderPrices();
-  applyAvailability();
-  rebuildSlotDropdown();
-  updateDeliveryBanner();
+.delivery-person-card {
+  background: rgba(56, 176, 0, 0.1);
+  border: 1px solid var(--success);
+  border-radius: 8px;
+  padding: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
 
-  // Close modals on overlay click
-  document.getElementById('adminLoginModal').addEventListener('click', e => {
-    if (e.target === document.getElementById('adminLoginModal')) closeAdminLogin();
-  });
-  document.getElementById('editDpModal').addEventListener('click', e => {
-    if (e.target === document.getElementById('editDpModal')) closeEditDp();
-  });
-});
-</script>
-</body>
-</html>
+.dp-avatar {
+  width: 45px;
+  height: 45px;
+  background: var(--success);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  color: white;
+  font-size: 1.1rem;
+}
+
+.order-summary {
+  background: var(--bg-input);
+  border-radius: 8px;
+  padding: 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  font-size: 0.9rem;
+}
+.summary-row:last-child { border-bottom: none; font-weight: 700; font-size: 1.1rem; color: var(--accent); }
+
+.submit-btn {
+  width: 100%;
+  background: var(--primary);
+  color: white;
+  border: none;
+  padding: 1rem;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+}
+.submit-btn:hover { background: var(--primary-hover); transform: translateY(-2px); }
+.submit-btn:disabled { background: #444; cursor: not-allowed; transform: none;
