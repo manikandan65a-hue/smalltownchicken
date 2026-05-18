@@ -1,525 +1,1304 @@
-<think>
-The user wants to "improve the website". Looking at the previous code, it's a functional chicken delivery ordering system with Firebase/Google Sheets integration.
-
-Let me analyze what improvements could make this better:
-
-1. **UI/UX Improvements:**
-   - Make the design more modern and appetizing
-   - Better mobile responsiveness
-   - Improved visual hierarchy
-   - Better color scheme
-   - Add more visual elements (images of chicken, delivery, etc.)
-   - Better spacing and typography
-
-2. **Functionality Improvements:**
-   - Better error handling
-   - Persist cart in localStorage so orders aren't lost on refresh
-   - Auto-fill customer details from localStorage
-   - Better order tracking/status view
-   - Add a simple "Order History" view for returning customers
-   - Better validation
-
-3. **Performance:**
-   - Lazy load images
-   - Optimized CSS/JS
-
-Since this is a Single HTML File project, I should focus on:
-- Better visual design (make it look premium but rustic/farm-fresh)
-- Better mobile experience (most customers will order from phone)
-- Added features like persistent cart and simple "my orders" view
-- Better images/placeholder visuals
-
-Let me create a significantly improved version with:
-1. **Better Hero Section** - Clearer value proposition, appetizing imagery
-2. **Product Cards** - Better visual appeal, clear pricing
-3. **Form UX** - Better validation, auto-save to localStorage
-4. **Admin Panel** - More robust features
-5. **Visual Polish** - Animations, hover states, better typography
-
-I'll keep the Firebase/Sheets integration but make it more robust with local fallback.
-</think> is a significantly improved version with a modern, appetizing design, better mobile experience, persistent cart, and robust features.
-
-### Key Improvements:
-1. **Premium Restaurant Design**: Rustic warm colors, elegant typography, clear visual hierarchy.
-2. **Mobile-First Experience**: Big touch targets, simplified forms, auto-fill.
-3. **Persistent Cart**: Items stay in cart even if you close the browser.
-4. **Smart Validation**: Real-time form validation with helpful messages.
-5. **Order History**: Customers can see their past orders (stored locally).
-6. **Better Admin Panel**: Cleaner interface, easier product management.
-7. **Animations**: Subtle fade-ins and hover effects for a polished feel.
-
+I've enhanced the website with full product availability controls for the admin. Now you can toggle each product ON/OFF, and customers will see real-time availability status.
 ```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Small Town Chicken | Fresh Chicken Delivery in Chennai</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+<title>Small Town Chicken | Fresh Farm Chicken Delivered Daily</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+<!-- Firebase SDKs -->
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 <style>
-/* ─────────────────────────────────────────────────────
-   ROOT VARIABLES – Palette
-   ───────────────────────────────────────────────────── */
-:root {
-  --bg-dark: #0f0f0f;
-  --bg-card: #1a1a1a;
-  --bg-input: #252525;
-  --primary: #e85d04; /* Burnt Orange */
-  --primary-hover: #f48c06;
-  --accent: #faa307; /* Golden Yellow */
-  --text-light: #fdfdfd;
-  --text-muted: #a3a3a3;
-  --success: #38b000;
-  --error: #d00000;
-  --border: #333333;
-  --radius: 12px;
-  --shadow: 0 4px 20px rgba(0,0,0,0.3);
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
-/* ─────────────────────────────────────────────────────
-   RESET & BASE STYLES
-   ───────────────────────────────────────────────────── */
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { scroll-behavior: smooth; }
+:root {
+  --bg-dark: #0d0a06;
+  --bg-card: #1c1610;
+  --bg-elevated: #2a221a;
+  --rust: #e05a2a;
+  --rust-dim: #b8431a;
+  --gold: #f5b342;
+  --gold-dim: #c98f2b;
+  --cream: #fef7e8;
+  --cream-muted: #e2d5be;
+  --muted-text: #8e7a64;
+  --border-subtle: rgba(255,255,255,0.05);
+  --success: #4caf50;
+  --error: #f44336;
+  --warning: #ff9800;
+  --disabled: #555;
+}
 
 body {
-  font-family: 'DM Sans', sans-serif;
-  background-color: var(--bg-dark);
-  color: var(--text-light);
-  line-height: 1.6;
-  min-height: 100vh;
-  overflow-x: hidden;
+  font-family: 'Inter', sans-serif;
+  background: var(--bg-dark);
+  color: var(--cream);
+  line-height: 1.5;
+  scroll-behavior: smooth;
 }
 
-img { max-width: 100%; height: auto; display: block; }
-button, input, select, textarea { font-family: inherit; outline: none; }
-a { color: inherit; text-decoration: none; }
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: var(--bg-card); }
+::-webkit-scrollbar-thumb { background: var(--rust); border-radius: 10px; }
 
-/* ─────────────────────────────────────────────────────
-   HEADER & NAVIGATION
-   ───────────────────────────────────────────────────── */
-.top-bar {
-  background: linear-gradient(to right, #000, var(--bg-card));
-  border-bottom: 1px solid var(--border);
-  padding: 0.75rem 1.5rem;
+.topbar {
+  background: rgba(224, 90, 42, 0.95);
+  backdrop-filter: blur(2px);
+  padding: 0.5rem 1.5rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  font-size: 0.75rem;
+  font-weight: 500;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.admin-toggle {
+  background: rgba(0,0,0,0.3);
+  border: none;
+  color: white;
+  padding: 0.3rem 1rem;
+  border-radius: 30px;
+  font-size: 0.7rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.admin-toggle:hover {
+  background: rgba(0,0,0,0.5);
+}
+
+nav {
+  background: var(--bg-dark);
+  border-bottom: 2px solid var(--rust);
+  padding: 0.8rem 1.5rem;
   position: sticky;
   top: 0;
   z-index: 100;
-}
-
-.brand {
+  backdrop-filter: blur(12px);
+  background: rgba(13, 10, 6, 0.95);
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-}
-
-.brand-icon {
-  font-size: 1.75rem;
-  filter: drop-shadow(0 0 8px rgba(232, 93, 4, 0.4));
-}
-
-.brand-name {
-  font-family: 'Playfair Display', serif;
-  font-size: 1.4rem;
-  font-weight: 700;
-  letter-spacing: 0.5px;
-  color: var(--text-light);
-}
-
-.brand-tagline {
-  font-size: 0.7rem;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  display: block;
-}
-
-.top-actions {
-  display: flex;
-  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
   gap: 1rem;
 }
 
-.price-badge {
-  background: var(--bg-input);
-  padding: 0.4rem 1rem;
-  border-radius: 20px;
-  font-size: 0.85rem;
-  font-weight: 600;
-  border: 1px solid var(--primary);
-  display: none; /* Hidden until price loaded */
-}
-
-@media(min-width: 768px) { .price-badge { display: block; } }
-
-.btn-icon {
-  background: transparent;
-  border: none;
-  color: var(--text-muted);
-  font-size: 1.25rem;
-  cursor: pointer;
-  position: relative;
-  transition: color 0.2s;
-}
-.btn-icon:hover { color: var(--text-light); }
-
-.cart-count {
-  position: absolute;
-  top: -5px;
-  right: -5px;
-  background: var(--primary);
-  color: white;
-  font-size: 0.65rem;
+.logo-main {
+  font-family: 'Playfair Display', serif;
   font-weight: 700;
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  font-size: 1.6rem;
+  letter-spacing: -0.5px;
+  color: var(--gold);
 }
 
-.admin-btn {
-  background: var(--bg-input);
-  border: 1px solid var(--border);
-  color: var(--text-muted);
-  padding: 0.4rem 0.8rem;
-  border-radius: 6px;
-  font-size: 0.8rem;
-  cursor: pointer;
-  transition: all 0.2s;
+.logo-main i {
+  color: var(--rust);
+  font-size: 1.4rem;
+  margin-right: 4px;
 }
-.admin-btn:hover { border-color: var(--text-muted); color: var(--text-light); }
 
-/* ─────────────────────────────────────────────────────
-   HERO SECTION
-   ───────────────────────────────────────────────────── */
-.hero {
-  padding: 3rem 1.5rem;
-  background: linear-gradient(to bottom, rgba(0,0,0,0.7), var(--bg-dark)), 
-              url('https://images.unsplash.com/photo-1587593810167-a84920ea0781?auto=format&fit=crop&w=1200&q=80');
-  background-size: cover;
-  background-position: center;
+.logo-sub {
+  font-size: 0.7rem;
+  color: var(--muted-text);
+  letter-spacing: 1px;
+}
+
+.nav-price {
+  background: var(--bg-elevated);
+  padding: 0.4rem 1.2rem;
+  border-radius: 40px;
+  border: 1px solid var(--rust);
   text-align: center;
-  min-height: 60vh;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  position: relative;
 }
 
-.hero::after {
-  content: '';
+.nav-price .label {
+  font-size: 0.6rem;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--muted-text);
+}
+
+.nav-price .value {
+  font-weight: 700;
+  font-size: 1.3rem;
+  color: var(--gold);
+}
+
+.admin-panel {
+  background: var(--bg-card);
+  border-bottom: 1px solid var(--gold-dim);
+  padding: 1.8rem 1.5rem;
+  display: none;
+  transition: 0.2s;
+}
+
+.admin-panel.open {
+  display: block;
+}
+
+.admin-header {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.3rem;
+  color: var(--gold);
+  margin-bottom: 1.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+.logout-btn {
+  background: rgba(224,90,42,0.2);
+  border: 1px solid var(--rust);
+  color: var(--rust);
+  padding: 0.3rem 1rem;
+  border-radius: 30px;
+  font-size: 0.7rem;
+  cursor: pointer;
+}
+
+.logout-btn:hover {
+  background: var(--rust);
+  color: white;
+}
+
+.admin-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.input-group label {
+  display: block;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--muted-text);
+  margin-bottom: 0.3rem;
+}
+
+.input-group input, .input-group select {
+  width: 100%;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
+  padding: 0.7rem 1rem;
+  border-radius: 12px;
+  color: white;
+  font-family: 'Inter', sans-serif;
+}
+
+.input-group input:focus, .input-group select:focus {
+  outline: none;
+  border-color: var(--rust);
+}
+
+.product-toggle-card {
+  background: var(--bg-elevated);
+  border-radius: 16px;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.product-toggle-title {
+  font-size: 1rem;
+  color: var(--gold);
+  margin-bottom: 0.8rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.8rem;
+  border-bottom: 1px solid var(--border-subtle);
+  flex-wrap: wrap;
+  gap: 0.8rem;
+}
+
+.toggle-row:last-child {
+  border-bottom: none;
+}
+
+.toggle-info {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.toggle-name {
+  font-weight: 600;
+  min-width: 130px;
+}
+
+.toggle-status {
+  font-size: 0.7rem;
+  padding: 0.2rem 0.6rem;
+  border-radius: 20px;
+  background: rgba(76,175,80,0.2);
+  color: var(--success);
+}
+
+.toggle-status.out {
+  background: rgba(244,67,54,0.2);
+  color: var(--error);
+}
+
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 52px;
+  height: 28px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
   position: absolute;
-  bottom: 0;
+  cursor: pointer;
+  top: 0;
   left: 0;
   right: 0;
-  height: 100px;
-  background: linear-gradient(to top, var(--bg-dark), transparent);
+  bottom: 0;
+  background-color: #555;
+  transition: 0.3s;
+  border-radius: 34px;
 }
 
-.hero-content {
-  position: relative;
-  z-index: 2;
-  max-width: 600px;
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 22px;
+  width: 22px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: 0.3s;
+  border-radius: 50%;
 }
 
-.hero-eyebrow {
-  color: var(--primary);
+input:checked + .slider {
+  background-color: var(--rust);
+}
+
+input:checked + .slider:before {
+  transform: translateX(24px);
+}
+
+.save-btn {
+  background: var(--gold);
+  color: var(--bg-dark);
+  border: none;
+  padding: 0.7rem 1.8rem;
+  border-radius: 40px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.save-btn:hover {
+  background: var(--gold-dim);
+  transform: translateY(-2px);
+}
+
+.delivery-section {
+  margin-top: 2rem;
+  border-top: 1px solid var(--border-subtle);
+  padding-top: 1.5rem;
+}
+
+.delivery-title {
+  font-size: 1rem;
+  color: var(--gold);
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.delivery-list {
+  background: var(--bg-elevated);
+  border-radius: 16px;
+  padding: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.delivery-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.8rem 1rem;
+  border-bottom: 1px solid var(--border-subtle);
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.delivery-item:last-child {
+  border-bottom: none;
+}
+
+.delivery-info {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.delivery-name {
   font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 2px;
-  font-size: 0.85rem;
+  min-width: 120px;
+}
+
+.delivery-phone {
+  color: var(--muted-text);
+  font-size: 0.8rem;
+}
+
+.delivery-shift {
+  background: var(--bg-dark);
+  padding: 0.2rem 0.6rem;
+  border-radius: 20px;
+  font-size: 0.7rem;
+  color: var(--gold);
+}
+
+.icon-btn {
+  background: transparent;
+  border: none;
+  color: var(--muted-text);
+  cursor: pointer;
+  padding: 0.3rem;
+  border-radius: 8px;
+}
+
+.icon-btn:hover {
+  color: var(--gold);
+  background: rgba(245,179,66,0.1);
+}
+
+.add-delivery-form {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-top: 1rem;
+}
+
+.add-delivery-form input, .add-delivery-form select {
+  flex: 1;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
+  padding: 0.6rem 1rem;
+  border-radius: 40px;
+  color: white;
+}
+
+.add-delivery-form button {
+  background: var(--rust);
+  border: none;
+  padding: 0.6rem 1.2rem;
+  border-radius: 40px;
+  color: white;
+  cursor: pointer;
+}
+
+.hero {
+  background: linear-gradient(135deg, #0f0b07 0%, #1c130c 100%);
+  padding: 3rem 1.5rem;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 2rem;
+  border-bottom: 1px solid rgba(224,90,42,0.3);
+}
+
+.hero-content { flex: 1; }
+
+.hero-badge {
+  display: inline-block;
+  background: rgba(224,90,42,0.2);
+  padding: 0.2rem 1rem;
+  border-radius: 30px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--rust);
   margin-bottom: 1rem;
 }
 
 .hero h1 {
   font-family: 'Playfair Display', serif;
-  font-size: 3.5rem;
+  font-size: 3.8rem;
   line-height: 1.1;
   margin-bottom: 1rem;
-  text-shadow: 0 2px 20px rgba(0,0,0,0.5);
 }
 
-.hero h1 span { color: var(--primary); }
+.hero h1 span { color: var(--rust); }
 
-.hero-desc {
-  font-size: 1.1rem;
-  color: #ddd;
-  margin-bottom: 2rem;
+.price-card {
+  background: var(--bg-elevated);
+  border-radius: 28px;
+  padding: 1.5rem 2rem;
+  text-align: center;
+  min-width: 220px;
+  border: 1px solid rgba(245,179,66,0.3);
 }
 
-.hero-cta {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  background: var(--primary);
-  color: white;
-  padding: 0.9rem 2rem;
-  border-radius: 30px;
+.price-card .date {
+  font-size: 0.7rem;
+  color: var(--muted-text);
+}
+
+.price-card .item {
   font-weight: 600;
-  font-size: 1rem;
-  transition: transform 0.2s, box-shadow 0.2s;
-  box-shadow: 0 4px 15px rgba(232, 93, 4, 0.4);
-}
-.hero-cta:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(232, 93, 4, 0.6);
-  background: var(--primary-hover);
+  margin: 0.8rem 0 0.2rem;
+  color: var(--gold);
 }
 
-/* ─────────────────────────────────────────────────────
-   DAILY PRICING CARD
-   ───────────────────────────────────────────────────── */
-.pricing-card {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 1.5rem;
-  margin: -2rem auto 2rem;
-  position: relative;
-  z-index: 10;
-  max-width: 320px;
-  box-shadow: var(--shadow);
+.big-price {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: var(--cream);
 }
 
-.pc-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1rem;
-  padding-bottom: 0.75rem;
-  border-bottom: 1px solid var(--border);
+.main {
+  padding: 2.5rem 1.5rem;
+  max-width: 1300px;
+  margin: 0 auto;
 }
-
-.pc-date { font-size: 0.8rem; color: var(--text-muted); }
-.pc-note { font-size: 0.75rem; color: var(--primary); background: rgba(232,93,4,0.1); padding: 0.2rem 0.5rem; border-radius: 4px; }
-
-.pc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
-.pc-item { text-align: center; }
-.pc-icon { font-size: 1.5rem; margin-bottom: 0.25rem; }
-.pc-name { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; }
-.pc-price { font-family: 'Playfair Display', serif; font-size: 1.75rem; color: var(--accent); }
-.pc-per { font-size: 0.7rem; color: var(--text-muted); }
-
-/* ─────────────────────────────────────────────────────
-   MAIN CONTENT & PRODUCTS
-   ───────────────────────────────────────────────────── */
-.container { max-width: 1100px; margin: 0 auto; padding: 0 1.5rem; }
 
 .section-title {
   font-family: 'Playfair Display', serif;
-  font-size: 1.75rem;
+  font-size: 1.8rem;
   margin-bottom: 1.5rem;
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-}
-.section-title::before {
-  content: '';
-  width: 4px;
-  height: 24px;
-  background: var(--primary);
-  border-radius: 2px;
+  border-left: 5px solid var(--rust);
+  padding-left: 1rem;
 }
 
 .products-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 1.5rem;
-  margin-bottom: 3rem;
+  margin-bottom: 2.5rem;
 }
 
 .product-card {
   background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  overflow: hidden;
-  transition: transform 0.3s, border-color 0.3s;
-}
-.product-card:hover { transform: translateY(-5px); border-color: var(--primary); }
-.product-card.out-of-stock { opacity: 0.6; pointer-events: none; filter: grayscale(0.8); }
-
-.prod-img {
-  height: 180px;
-  background: var(--bg-input);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 4rem;
+  border-radius: 24px;
+  padding: 1.5rem;
+  transition: 0.2s;
+  border: 1px solid var(--border-subtle);
   position: relative;
 }
 
-.unavail-badge {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  background: var(--error);
-  color: white;
-  font-size: 0.7rem;
-  font-weight: 600;
-  padding: 0.25rem 0.75rem;
-  border-radius: 4px;
-  text-transform: uppercase;
+.product-card.disabled {
+  opacity: 0.6;
+  filter: grayscale(0.2);
+  border-color: var(--disabled);
 }
 
-.prod-body { padding: 1.25rem; }
-.prod-name { font-family: 'Playfair Display', serif; font-size: 1.25rem; margin-bottom: 0.5rem; }
-.prod-desc { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem; min-height: 40px; }
-.prod-price { font-size: 1.25rem; color: var(--accent); margin-bottom: 1rem; }
+.product-card.disabled:hover {
+  transform: none;
+  border-color: var(--disabled);
+}
+
+.product-badge {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: var(--error);
+  padding: 0.2rem 0.6rem;
+  border-radius: 20px;
+  font-size: 0.65rem;
+  font-weight: 600;
+}
+
+.product-badge.available {
+  background: var(--success);
+}
+
+.product-icon { font-size: 3rem; margin-bottom: 0.5rem; }
+.product-name { font-size: 1.3rem; font-weight: 700; margin-bottom: 0.3rem; }
+.product-desc { font-size: 0.8rem; color: var(--muted-text); margin-bottom: 1rem; }
+.product-price { font-size: 1.6rem; font-weight: 700; color: var(--gold); margin-bottom: 0.8rem; }
+
+.product-price.disabled-price {
+  color: var(--disabled);
+  text-decoration: line-through;
+}
 
 .qty-control {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  background: var(--bg-input);
-  border-radius: 8px;
-  padding: 0.25rem;
+  gap: 0.8rem;
+  margin: 0.8rem 0;
 }
 
 .qty-btn {
   width: 36px;
   height: 36px;
-  border: none;
-  background: transparent;
-  color: var(--text-light);
-  font-size: 1.25rem;
+  border-radius: 30px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
+  color: var(--cream);
+  font-size: 1.2rem;
   cursor: pointer;
-  border-radius: 6px;
-  transition: background 0.2s;
 }
-.qty-btn:hover { background: var(--bg-card); }
-.qty-btn:disabled { color: var(--text-muted); cursor: not-allowed; }
 
-.qty-display {
+.qty-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.qty-btn:hover:not(:disabled) {
+  background: var(--rust);
+  border-color: var(--rust);
+}
+
+.qty-value {
   font-weight: 600;
   font-size: 1.1rem;
-  min-width: 50px;
+  min-width: 40px;
   text-align: center;
 }
 
-.prod-cut-select {
+.cut-select {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: 30px;
+  padding: 0.4rem 0.8rem;
+  color: var(--cream);
   width: 100%;
-  background: var(--bg-input);
-  border: 1px solid var(--border);
-  color: var(--text-light);
-  padding: 0.5rem;
-  border-radius: 6px;
-  margin-top: 0.75rem;
-  font-size: 0.85rem;
 }
 
-/* ─────────────────────────────────────────────────────
-   CHECKOUT FORM
-   ───────────────────────────────────────────────────── */
-.checkout-section {
+.cut-select:disabled {
+  opacity: 0.5;
+}
+
+.form-card {
   background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 2rem;
-  margin-bottom: 3rem;
+  border-radius: 28px;
+  padding: 1.8rem;
+  margin: 2rem 0;
 }
 
 .form-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1.25rem;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.2rem;
   margin-bottom: 1.5rem;
 }
 
-.form-group { display: flex; flex-direction: column; gap: 0.5rem; }
-.form-group.full-width { grid-column: 1 / -1; }
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
 
-.form-label {
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: var(--text-muted);
+.field label {
+  font-size: 0.7rem;
   text-transform: uppercase;
   letter-spacing: 1px;
+  color: var(--muted-text);
+  font-weight: 600;
 }
 
-.form-input, .form-select, .form-textarea {
-  background: var(--bg-input);
-  border: 1px solid var(--border);
-  color: var(--text-light);
+.field input, .field select, .field textarea {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
   padding: 0.75rem 1rem;
-  border-radius: 8px;
-  font-size: 0.95rem;
-  transition: border-color 0.2s;
-}
-.form-input:focus, .form-select:focus, .form-textarea:focus { border-color: var(--primary); }
-.form-input.error { border-color: var(--error); }
-.form-textarea { min-height: 80px; resize: vertical; }
-
-.map-box {
-  background: var(--bg-input);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 1rem;
-  margin-bottom: 1rem;
-}
-
-.delivery-person-card {
-  background: rgba(56, 176, 0, 0.1);
-  border: 1px solid var(--success);
-  border-radius: 8px;
-  padding: 1rem;
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  margin-bottom: 1.5rem;
-}
-
-.dp-avatar {
-  width: 45px;
-  height: 45px;
-  background: var(--success);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 700;
+  border-radius: 16px;
   color: white;
-  font-size: 1.1rem;
+  font-family: 'Inter', sans-serif;
 }
 
-.order-summary {
-  background: var(--bg-input);
-  border-radius: 8px;
-  padding: 1.25rem;
-  margin-bottom: 1.5rem;
+.map-frame {
+  border-radius: 20px;
+  overflow: hidden;
+  margin: 1rem 0;
+}
+
+.map-frame iframe {
+  width: 100%;
+  height: 260px;
+  display: block;
+}
+
+.map-link-row {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.btn-outline {
+  background: transparent;
+  border: 1px solid var(--rust);
+  color: var(--rust);
+  padding: 0.6rem 1.2rem;
+  border-radius: 40px;
+  font-size: 0.8rem;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.btn-outline:hover {
+  background: var(--rust);
+  color: white;
+}
+
+.summary {
+  background: var(--bg-elevated);
+  border-radius: 20px;
+  padding: 1.2rem;
+  margin: 1.5rem 0;
+}
+
+.summary h4 {
+  font-size: 1rem;
+  margin-bottom: 1rem;
+  border-bottom: 1px solid var(--border-subtle);
+  padding-bottom: 0.6rem;
 }
 
 .summary-row {
   display: flex;
   justify-content: space-between;
-  padding: 0.5rem 0;
-  border-bottom: 1px solid rgba(255,255,255,0.05);
   font-size: 0.9rem;
+  margin: 0.5rem 0;
+  color: var(--cream-muted);
 }
-.summary-row:last-child { border-bottom: none; font-weight: 700; font-size: 1.1rem; color: var(--accent); }
 
-.submit-btn {
+.summary-total {
+  display: flex;
+  justify-content: space-between;
+  font-size: 1.3rem;
+  font-weight: 800;
+  margin-top: 0.8rem;
+  padding-top: 0.8rem;
+  border-top: 2px dashed var(--gold-dim);
+  color: var(--gold);
+}
+
+.order-btn {
   width: 100%;
-  background: var(--primary);
-  color: white;
+  background: linear-gradient(95deg, var(--rust) 0%, #c9471a 100%);
   border: none;
   padding: 1rem;
-  border-radius: 8px;
+  border-radius: 50px;
+  font-weight: 800;
   font-size: 1.1rem;
-  font-weight: 700;
-  cursor: pointer;
-  transition: background 0.2s, transform 0.2s;
+  color: white;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.75rem;
+  gap: 0.8rem;
+  cursor: pointer;
 }
-.submit-btn:hover { background: var(--primary-hover); transform: translateY(-2px); }
-.submit-btn:disabled { background: #444; cursor: not-allowed; transform: none;
+
+.order-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.order-btn:hover:not(:disabled) {
+  transform: scale(0.99);
+}
+
+.modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.95);
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  backdrop-filter: blur(6px);
+}
+
+.modal.open { display: flex; }
+
+.modal-content {
+  background: var(--bg-card);
+  border-radius: 32px;
+  padding: 2rem;
+  max-width: 400px;
+  text-align: center;
+  border: 1px solid var(--gold);
+}
+
+.modal-icon { font-size: 4rem; margin-bottom: 1rem; }
+.modal h2 { font-family: 'Playfair Display', serif; font-size: 1.8rem; color: var(--gold); }
+
+.back-btn {
+  background: var(--rust);
+  border: none;
+  padding: 0.7rem 2rem;
+  border-radius: 40px;
+  color: white;
+  font-weight: 700;
+  margin-top: 1.2rem;
+  cursor: pointer;
+}
+
+.password-modal .modal-content { max-width: 350px; }
+.password-modal input {
+  width: 100%;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
+  padding: 0.8rem;
+  border-radius: 16px;
+  color: white;
+  margin: 1rem 0;
+}
+
+.toast {
+  position: fixed;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%) translateY(80px);
+  background: var(--bg-elevated);
+  color: var(--gold);
+  padding: 0.8rem 1.8rem;
+  border-radius: 60px;
+  font-size: 0.85rem;
+  z-index: 1100;
+  transition: 0.3s;
+  white-space: nowrap;
+}
+
+.toast.show { transform: translateX(-50%) translateY(0); }
+
+footer {
+  background: var(--bg-card);
+  padding: 1.5rem;
+  text-align: center;
+  border-top: 1px solid var(--border-subtle);
+  font-size: 0.75rem;
+  color: var(--muted-text);
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+@media (max-width: 700px) {
+  .hero h1 { font-size: 2.5rem; }
+  .price-card { padding: 1rem; min-width: 180px; }
+  .toast { white-space: normal; width: 90%; text-align: center; }
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <span><i class="fas fa-drumstick-bite"></i> Farm Fresh | Product Availability Control | Chennai-wide Delivery</span>
+  <button class="admin-toggle" onclick="requestAdminAccess()"><i class="fas fa-user-cog"></i> Admin Panel</button>
+</div>
+
+<nav>
+  <div>
+    <div class="logo-main"><i class="fas fa-utensils"></i> SMALL TOWN CHICKEN</div>
+    <div class="logo-sub">live availability · cloud sync</div>
+  </div>
+  <div class="nav-price">
+    <div class="label">Today's best price</div>
+    <div class="value" id="navPrice">Loading...</div>
+  </div>
+</nav>
+
+<div class="admin-panel" id="adminPanel">
+  <div class="admin-header">
+    <span><i class="fas fa-sliders-h"></i> Admin Dashboard</span>
+    <button class="logout-btn" onclick="logoutAdmin()"><i class="fas fa-sign-out-alt"></i> Logout</button>
+  </div>
+  
+  <!-- Product Availability Toggle Section -->
+  <div class="product-toggle-card">
+    <div class="product-toggle-title"><i class="fas fa-toggle-on"></i> Product Availability Control</div>
+    <div class="toggle-row">
+      <div class="toggle-info">
+        <span class="toggle-name">🐔 Whole Chicken</span>
+        <span class="toggle-status" id="wholeStatusBadge">Available</span>
+      </div>
+      <label class="switch">
+        <input type="checkbox" id="wholeAvailableToggle" onchange="toggleProductAvailability('whole')">
+        <span class="slider"></span>
+      </label>
+    </div>
+    <div class="toggle-row">
+      <div class="toggle-info">
+        <span class="toggle-name">🍗 Chicken Pieces</span>
+        <span class="toggle-status" id="piecesStatusBadge">Available</span>
+      </div>
+      <label class="switch">
+        <input type="checkbox" id="piecesAvailableToggle" onchange="toggleProductAvailability('pieces')">
+        <span class="slider"></span>
+      </label>
+    </div>
+  </div>
+
+  <div class="admin-grid">
+    <div class="input-group"><label>🐔 Whole Chicken (₹/kg)</label><input type="number" id="adminWhole" step="1"></div>
+    <div class="input-group"><label>🍗 Chicken Pieces (₹/kg)</label><input type="number" id="adminPieces" step="1"></div>
+    <div class="input-group"><label>📢 Today's Special Note</label><input type="text" id="adminNote" placeholder="Fresh batch!"></div>
+  </div>
+  <button class="save-btn" onclick="savePricesToCloud()"><i class="fas fa-cloud-upload-alt"></i> Publish to Cloud</button>
+  <span id="savedOk" style="display:none; color:#4caf50; margin-left:1rem;">✅ Synced!</span>
+
+  <div class="delivery-section">
+    <div class="delivery-title"><i class="fas fa-motorcycle"></i> Delivery Partners</div>
+    <div class="delivery-list" id="deliveryList"></div>
+    <div class="add-delivery-form">
+      <input type="text" id="newDeliveryName" placeholder="Delivery Boy Name">
+      <input type="tel" id="newDeliveryPhone" placeholder="WhatsApp Number">
+      <select id="newDeliveryShift">
+        <option>Morning (7AM-1PM)</option><option>Afternoon (1PM-7PM)</option>
+        <option>Evening (4PM-9PM)</option><option>Flexible</option>
+      </select>
+      <button onclick="addDeliveryBoyToCloud()"><i class="fas fa-plus"></i> Add</button>
+    </div>
+  </div>
+</div>
+
+<section class="hero">
+  <div class="hero-content">
+    <div class="hero-badge"><i class="fas fa-cloud"></i> Live Availability · Cloud Sync</div>
+    <h1>SMALL TOWN <br><span>CHICKEN</span></h1>
+    <p class="hero-desc">Premium quality chicken with real-time availability control. Admin can toggle products ON/OFF instantly.</p>
+    <div class="hero-note" id="heroNote" style="font-size:0.85rem; color:var(--gold);"></div>
+  </div>
+  <div class="price-card">
+    <div class="date" id="pcDate">—</div>
+    <div class="item">🐔 Whole Chicken</div>
+    <div class="big-price" id="pcWhole">—</div>
+    <div class="unit">per kg</div>
+    <div style="margin: 10px 0; opacity:0.2;">✦</div>
+    <div class="item">🍗 Cut Pieces</div>
+    <div class="big-price" id="pcPieces">—</div>
+    <div class="unit">per kg</div>
+  </div>
+</section>
+
+<div class="main">
+  <div class="section-title"><i class="fas fa-shopping-basket"></i> Choose your fresh cuts</div>
+  <div class="products-grid">
+    <div class="product-card" id="wholeProductCard">
+      <div class="product-badge available" id="wholeBadge">Available</div>
+      <div class="product-icon">🐔</div>
+      <div class="product-name">Whole Chicken</div>
+      <div class="product-desc">Cleaned, dressed & ready for biryani, roasts.</div>
+      <div class="product-price" id="wholePriceDisp">—</div>
+      <div class="qty-control">
+        <button class="qty-btn" id="wholeMinusBtn" onclick="changeQty('w',-0.5)">−</button>
+        <span class="qty-value" id="wQty">0</span>
+        <button class="qty-btn" id="wholePlusBtn" onclick="changeQty('w',0.5)">+</button>
+        <span style="font-size:0.7rem;">kg</span>
+      </div>
+    </div>
+    <div class="product-card" id="piecesProductCard">
+      <div class="product-badge available" id="piecesBadge">Available</div>
+      <div class="product-icon">🍗</div>
+      <div class="product-name">Chicken Pieces</div>
+      <div class="product-desc">Freshly cut to your preference.</div>
+      <div class="product-price" id="piecesPriceDisp">—</div>
+      <div class="qty-control">
+        <button class="qty-btn" id="piecesMinusBtn" onclick="changeQty('p',-0.5)">−</button>
+        <span class="qty-value" id="pQty">0</span>
+        <button class="qty-btn" id="piecesPlusBtn" onclick="changeQty('p',0.5)">+</button>
+        <span style="font-size:0.7rem;">kg</span>
+      </div>
+      <select class="cut-select" id="cutType" onchange="updateSummary()">
+        <option>Mixed Cut</option><option>Breast Pieces</option><option>Leg Pieces</option><option>Wings</option><option>Boneless</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="form-card">
+    <h3><i class="fas fa-truck"></i> Delivery details</h3>
+    <div class="form-grid">
+      <div class="field"><label>Full name</label><input type="text" id="cName" placeholder="Your name"></div>
+      <div class="field"><label>Mobile number</label><input type="tel" id="cPhone" placeholder="+91 9876543210"></div>
+      <div class="field"><label>Street address</label><input type="text" id="cAddress" placeholder="Door no, street, area"></div>
+      <div class="field"><label>Pincode</label><input type="text" id="cPincode" placeholder="600001"></div>
+      <div class="field"><label>Delivery time slot</label>
+        <select id="cSlot"><option value="">— Select —</option><option>7 AM – 9 AM</option><option>9 AM – 12 PM</option><option>12 PM – 3 PM</option><option>4 PM – 7 PM</option></select>
+      </div>
+      <div class="field"><label>Special instructions</label><textarea id="cNotes" rows="2" placeholder="Skinless? Extra clean?"></textarea></div>
+    </div>
+    <div class="map-frame">
+      <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d497698!2d79.87893!3d13.0478!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3a5265ea4f7d3361%3A0x6e61a70b6863d433!2sChennai!5e0!3m2!1sen!2sin!4v1670000000000" allowfullscreen="" loading="lazy"></iframe>
+    </div>
+    <div class="map-link-row">
+      <input type="text" id="mapLink" placeholder="Paste Google Maps share link" style="flex:1; background:var(--bg-elevated); border-radius:40px; padding:0.6rem 1rem; border:1px solid var(--border-subtle); color:white;">
+      <a class="btn-outline" href="https://maps.google.com" target="_blank"><i class="fab fa-google"></i> Get link</a>
+    </div>
+    <div class="summary">
+      <h4><i class="fas fa-receipt"></i> Order summary</h4>
+      <div id="sumRows"></div>
+      <div class="summary-total"><span>💰 Total</span><span id="sumTotal">₹0</span></div>
+    </div>
+    <button class="order-btn" id="orderBtn" onclick="placeOrder()"><i class="fab fa-whatsapp"></i> Send order via WhatsApp</button>
+  </div>
+</div>
+
+<footer>
+  <span><i class="fas fa-map-pin"></i> Chennai, Tamil Nadu</span>
+  <span>🍗 Admin controls availability in real-time</span>
+  <span><i class="fas fa-phone-alt"></i> Support: +91 98765 00000</span>
+</footer>
+
+<div class="toast" id="toastMsg"></div>
+<div class="modal" id="successModal"><div class="modal-content"><div class="modal-icon">✅</div><h2>Order Placed!</h2><p>Your order sent to delivery team.</p><button class="back-btn" onclick="closeSuccess()">Back to menu</button></div></div>
+<div class="modal password-modal" id="passwordModal"><div class="modal-content"><div class="modal-icon"><i class="fas fa-lock"></i></div><h2>Admin Access</h2><input type="password" id="adminPassword" placeholder="Enter password"><button class="back-btn" onclick="verifyPassword()">Verify</button><button onclick="closePasswordModal()" style="background:transparent; color:var(--muted-text); margin-top:0.5rem; cursor:pointer;">Cancel</button></div></div>
+
+<script>
+const ADMIN_PASSWORD = "smalltown2024";
+let state = { 
+  wp: 0, pp: 0, note: '', wQty: 0, pQty: 0, deliveryBoys: [], 
+  isAdminLoggedIn: false,
+  wholeAvailable: true,
+  piecesAvailable: true
+};
+
+// Firebase configuration (Free tier - replace with your own Firebase project)
+const firebaseConfig = {
+  apiKey: "AIzaSyDummyKeyForDemo123456789",
+  authDomain: "smalltownchicken.firebaseapp.com",
+  projectId: "smalltownchicken",
+  storageBucket: "smalltownchicken.appspot.com",
+  messagingSenderId: "123456789012",
+  appId: "1:123456789012:web:abc123def456"
+};
+
+let db;
+try {
+  firebase.initializeApp(firebaseConfig);
+  db = firebase.firestore();
+} catch(e) { console.warn("Firebase init error:", e); }
+
+async function loadFromCloud() {
+  if (!db) { showToast("⚠️ Demo mode - using localStorage"); loadFromLocal(); return; }
+  try {
+    const doc = await db.collection("settings").doc("prices").get();
+    if (doc.exists) {
+      const data = doc.data();
+      state.wp = data.wholePrice || 0;
+      state.pp = data.piecesPrice || 0;
+      state.note = data.note || "";
+      state.wholeAvailable = data.wholeAvailable !== undefined ? data.wholeAvailable : true;
+      state.piecesAvailable = data.piecesAvailable !== undefined ? data.piecesAvailable : true;
+      document.getElementById('adminWhole').value = state.wp;
+      document.getElementById('adminPieces').value = state.pp;
+      document.getElementById('adminNote').value = state.note;
+      document.getElementById('wholeAvailableToggle').checked = state.wholeAvailable;
+      document.getElementById('piecesAvailableToggle').checked = state.piecesAvailable;
+    }
+    const boysSnap = await db.collection("deliveryBoys").orderBy("name").get();
+    if (!boysSnap.empty) {
+      state.deliveryBoys = boysSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    } else {
+      const defaultBoys = [
+        { name: "Rajesh Kumar", phone: "919876543001", shift: "Morning (7AM-1PM)" },
+        { name: "Senthil Murugan", phone: "919876543002", shift: "Afternoon (1PM-7PM)" },
+        { name: "Arun Prakash", phone: "919876543003", shift: "Evening (4PM-9PM)" }
+      ];
+      for (let boy of defaultBoys) {
+        const ref = await db.collection("deliveryBoys").add(boy);
+        state.deliveryBoys.push({ id: ref.id, ...boy });
+      }
+    }
+    applyProductAvailability();
+    renderPrices();
+    renderDeliveryList();
+  } catch(err) { console.error(err); loadFromLocal(); }
+}
+
+function loadFromLocal() {
+  const saved = localStorage.getItem('stc_availability');
+  if (saved) {
+    const data = JSON.parse(saved);
+    state.wp = data.wp || 0;
+    state.pp = data.pp || 0;
+    state.note = data.note || "";
+    state.wholeAvailable = data.wholeAvailable !== undefined ? data.wholeAvailable : true;
+    state.piecesAvailable = data.piecesAvailable !== undefined ? data.piecesAvailable : true;
+    state.deliveryBoys = data.deliveryBoys || [];
+  }
+  if (state.deliveryBoys.length === 0) {
+    state.deliveryBoys = [
+      { id: 1, name: "Rajesh Kumar", phone: "919876543001", shift: "Morning (7AM-1PM)" },
+      { id: 2, name: "Senthil Murugan", phone: "919876543002", shift: "Afternoon (1PM-7PM)" },
+      { id: 3, name: "Arun Prakash", phone: "919876543003", shift: "Evening (4PM-9PM)" }
+    ];
+  }
+  document.getElementById('wholeAvailableToggle').checked = state.wholeAvailable;
+  document.getElementById('piecesAvailableToggle').checked = state.piecesAvailable;
+  applyProductAvailability();
+  renderPrices();
+  renderDeliveryList();
+}
+
+function saveToLocal() {
+  localStorage.setItem('stc_availability', JSON.stringify({
+    wp: state.wp, pp: state.pp, note: state.note,
+    wholeAvailable: state.wholeAvailable, piecesAvailable: state.piecesAvailable,
+    deliveryBoys: state.deliveryBoys
+  }));
+}
+
+async function savePricesToCloud() {
+  if (!state.isAdminLoggedIn) { showToast("Please login as admin first"); return; }
+  const wp = parseFloat(document.getElementById('adminWhole').value);
+  const pp = parseFloat(document.getElementById('adminPieces').value);
+  const nt = document.getElementById('adminNote').value.trim();
+  if (isNaN(wp) || isNaN(pp) || wp <= 0 || pp <= 0) { showToast("Enter valid prices"); return; }
+  state.wp = wp; state.pp = pp; state.note = nt;
+  if (db) {
+    await db.collection("settings").doc("prices").set({ 
+      wholePrice: wp, piecesPrice: pp, note: nt, 
+      wholeAvailable: state.wholeAvailable, piecesAvailable: state.piecesAvailable,
+      updatedAt: new Date() 
+    });
+    showToast("✅ Saved to cloud! All users see updates.");
+  }
+  saveToLocal();
+  renderPrices();
+  document.getElementById('savedOk').style.display = 'inline';
+  setTimeout(() => document.getElementById('savedOk').style.display = 'none', 3000);
+}
+
+async function toggleProductAvailability(product) {
+  if (!state.isAdminLoggedIn) { 
+    showToast("Login as admin to change availability");
+    document.getElementById(`${product}AvailableToggle`).checked = !document.getElementById(`${product}AvailableToggle`).checked;
+    return;
+  }
+  if (product === 'whole') {
+    state.wholeAvailable = document.getElementById('wholeAvailableToggle').checked;
+  } else {
+    state.piecesAvailable = document.getElementById('piecesAvailableToggle').checked;
+  }
+  if (db) {
+    await db.collection("settings").doc("prices").update({
+      wholeAvailable: state.wholeAvailable,
+      piecesAvailable: state.piecesAvailable
+    });
+  }
+  saveToLocal();
+  applyProductAvailability();
+  updateSummary();
+  showToast(state.wholeAvailable && state.piecesAvailable ? "Availability updated" : "Product availability changed");
+}
+
+function applyProductAvailability() {
+  const wholeCard = document.getElementById('wholeProductCard');
+  const piecesCard = document.getElementById('piecesProductCard');
+  const wholeBadge = document.getElementById('wholeBadge');
+  const piecesBadge = document.getElementById('piecesBadge');
+  const wholeStatusSpan = document.getElementById('wholeStatusBadge');
+  const piecesStatusSpan = document.getElementById('piecesStatusBadge');
+  const wholeMinus = document.getElementById('wholeMinusBtn');
+  const wholePlus = document.getElementById('wholePlusBtn');
+  const piecesMinus = document.getElementById('piecesMinusBtn');
+  const piecesPlus = document.getElementById('piecesPlusBtn');
+  const cutSelect = document.getElementById('cutType');
+  
+  if (!state.wholeAvailable) {
+    wholeCard.classList.add('disabled');
+    wholeBadge.textContent = 'Out of Stock';
+    wholeBadge.classList.remove('available');
+    wholeBadge.style.background = 'var(--error)';
+    if (wholeStatusSpan) { wholeStatusSpan.textContent = 'Out of Stock'; wholeStatusSpan.classList.add('out'); }
+    if (wholeMinus) wholeMinus.disabled = true;
+    if (wholePlus) wholePlus.disabled = true;
+    if (state.wQty > 0) { state.wQty = 0; document.getElementById('wQty').innerText = '0'; }
+  } else {
+    wholeCard.classList.remove('disabled');
+    wholeBadge.textContent = 'Available';
+    wholeBadge.classList.add('available');
+    wholeBadge.style.background = 'var(--success)';
+    if (wholeStatusSpan) { wholeStatusSpan.textContent = 'Available'; wholeStatusSpan.classList.remove('out'); }
+    if (wholeMinus) wholeMinus.disabled = false;
+    if (wholePlus) wholePlus.disabled = false;
+  }
+  
+  if (!state.piecesAvailable) {
+    piecesCard.classList.add('disabled');
+    piecesBadge.textContent = 'Out of Stock';
+    piecesBadge.classList.remove('available');
+    piecesBadge.style.background = 'var(--error)';
+    if (piecesStatusSpan) { piecesStatusSpan.textContent = 'Out of Stock'; piecesStatusSpan.classList.add('out'); }
+    if (piecesMinus) piecesMinus.disabled = true;
+    if (piecesPlus) piecesPlus.disabled = true;
+    if (cutSelect) cutSelect.disabled = true;
+    if (state.pQty > 0) { state.pQty = 0; document.getElementById('pQty').innerText = '0'; }
+  } else {
+    piecesCard.classList.remove('disabled');
+    piecesBadge.textContent = 'Available';
+    piecesBadge.classList.add('available');
+    piecesBadge.style.background = 'var(--success)';
+    if (piecesStatusSpan) { piecesStatusSpan.textContent = 'Available'; piecesStatusSpan.classList.remove('out'); }
+    if (piecesMinus) piecesMinus.disabled = false;
+    if (piecesPlus) piecesPlus.disabled = false;
+    if (cutSelect) cutSelect.disabled = false;
+  }
+  updateSummary();
+}
+
+async function addDeliveryBoyToCloud() {
+  const name = document.getElementById('newDeliveryName').value.trim();
+  const phone = document.getElementById('newDeliveryPhone').value.trim();
+  const shift = document.getElementById('newDeliveryShift').value;
+  if (!name || !phone) { showToast("Enter name and phone"); return; }
+  if (db) {
+    const docRef = await db.collection("deliveryBoys").add({ name, phone, shift });
+    state.deliveryBoys.push({ id: docRef.id, name, phone, shift });
+  } else {
+    state.deliveryBoys.push({ id: Date.now(), name, phone, shift });
+  }
+  saveToLocal();
+  renderDeliveryList();
+  document.getElementById('newDeliveryName').value = '';
+  document.getElementById('newDeliveryPhone').value = '';
+  showToast(`✅ ${name} added`);
+}
+
+async function deleteDeliveryBoyFromCloud(id) {
+  if (confirm("Remove this delivery partner?")) {
+    if (db) await db.collection("deliveryBoys").doc(id).delete();
+    state.deliveryBoys = state.deliveryBoys.filter(b => b.id != id);
+    saveToLocal();
+    renderDeliveryList();
+    showToast("✅ Removed");
+  }
+}
+
+async function swapShiftInCloud(id) {
+  const boy = state.deliveryBoys.find(b => b.id == id);
+  if (!boy) return;
+  const shifts = ["Morning (7AM-1PM)", "Afternoon (1PM-7PM)", "Evening (4PM-9PM)", "Flexible"];
+  let idx = shifts.indexOf(boy.shift);
+  boy.shift = shifts[(idx+1) % shifts.length];
+  if (db) await db.collection("deliveryBoys").doc(id).update({ shift: boy.shift });
+  saveToLocal();
+  renderDeliveryList();
+  showToast(`🔄 Shift changed to ${boy.shift}`);
+}
+
+function renderDeliveryList() {
+  const container = document.getElementById('deliveryList');
+  if (!container) return;
+  container.innerHTML = state.deliveryBoys.map(b => `
+    <div class="delivery-item">
+      <div class="delivery-info"><span class="delivery-name">${b.name}</span><span class="delivery-phone">${b.phone}</span><span class="delivery-shift">${b.shift}</span></div>
+      <div class="delivery-actions">
+        <button class="icon-btn" onclick="swapShiftInCloud('${b.id}')"><i class="fas fa-exchange-alt"></i></button>
+        <button class="icon-btn" onclick="deleteDeliveryBoyFromCloud('${b.id}')"><i class="fas fa-trash"></i></button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function renderPrices() {
+  const today = new Date().toLocaleDateString('en-IN', { weekday:'short', day:'numeric', month:'short' });
+  document.getElementById('pcDate').innerHTML = `<i class="far fa-calendar-alt"></i> ${today}`;
+  document.getElementById('pcWhole').innerHTML = state.wp ? `₹${state.wp}` : '—';
+  document.getElementById('pcPieces').innerHTML = state.pp ? `₹${state.pp}` : '—';
+  document.getElementById('navPrice').innerHTML = state.wp ? `₹${state.wp}/kg` : 'Set price';
+  document.getElementById('wholePriceDisp').innerHTML = state.wp ? `₹${state.wp} <span style="font-size:0.8rem;">/kg</span>` : '—';
+  document.getElementById('piecesPriceDisp').innerHTML = state.pp ? `₹${state.pp} <span style="font-size:0.8rem;">/kg</span>` : '—';
+  document.getElementById('heroNote').innerHTML = state.note ? `📢 ${state.note}` : '';
+  updateSummary();
+}
+
+function changeQty(type, delta) {
+  if (type === 'w') {
+    if (!state.wholeAvailable) { showToast("Whole chicken is currently out of stock"); return; }
+    state.wQty = Math.max(0, Math.round((state.wQty+delta)*10)/10);
+    document.getElementById('wQty').innerText = state.wQty;
+  } else {
+    if (!state.piecesAvailable) { showToast("Chicken pieces are currently out of stock"); return; }
+    state.pQty = Math.max(0, Math.round((state.pQty+delta)*10)/10);
+    document.getElementById('pQty').innerText = state.pQty;
+  }
+  updateSummary();
+}
+
+function updateSummary() {
+  const cut = document.getElementById('cutType').value;
+  const wTotal = (state.wholeAvailable ? state.wQty * state.wp : 0);
+  const pTotal = (state.piecesAvailable ? state.pQty * state.pp : 0);
+  let html = '';
+  if (state.wholeAvailable && state.wQty>0 && state.wp>0) html += `<div class="summary-row"><span>🐔 Whole chicken × ${state.wQty}kg</span><span>₹${wTotal}</span></div>`;
+  if (state.piecesAvailable && state.pQty>0 && state.pp>0) html += `<div class="summary-row"><span>🍗 ${cut} × ${state.pQty}kg</span><span>₹${pTotal}</span></div>`;
+  if (!html) html = '<div style="color:var(--muted-text);">No items selected (some may be unavailable)</div>';
+  document.getElementById('sumRows').innerHTML = html;
+  document.getElementById('sumTotal').innerText = `₹${wTotal + pTotal}`;
+}
+
+function placeOrder() {
+  const hasItems = (state.wholeAvailable && state.wQty>0) || (state.piecesAvailable && state.pQty>0);
+  if (!hasItems) { showToast("No available items selected. Add items from in-stock products."); return; }
+  const name = document.getElementById('cName').value.trim();
+  const phone = document.getElementById('cPhone').value.trim();
+  const addr = document.getElementById('cAddress').value.trim();
+  const slot = document.getElementById('cSlot').value;
+  if (!name || !phone || !addr || !slot) { showToast("Fill all delivery details"); return; }
+  
+  const wTotal = (state.wholeAvailable ? state.wQty * state.wp : 0);
+  const pTotal = (state.piecesAvailable ? state.pQty * state.pp : 0);
+  let items = '';
+  if (state.wholeAvailable && state.wQty>0) items += `🐔 Whole: ${state.wQty}kg × ₹${state.wp} = ₹${wTotal}\n`;
+  if (state.piecesAvailable && state.pQty>0) items += `🍗 ${document.getElementById('cutType').value}: ${state.pQty}kg × ₹${state.pp} = ₹${pTotal}\n`;
+  
+  const randomBoy = state.deliveryBoys.length ? state.deliveryBoys[Math.floor(Math.random()*state.deliveryBoys.length)] : null;
+  const msg = `🍗 *SMALL TOWN CHICKEN*\n👤 ${name}\n📞 ${phone}\n📍 ${addr}\n⏰ ${slot}\n\n📦 ${items}💰 TOTAL: ₹${wTotal+pTotal}\n🚚 Delivery: ${randomBoy?.name || 'Our team'}`;
+  window.open(`https://wa.me/${randomBoy?.phone || '919876543210'}?text=${encodeURIComponent(msg)}`, '_blank');
+  setTimeout(()=>document.getElementById('successModal').classList.add('open'), 500);
+}
+
+function closeSuccess() {
+  document.getElementById('successModal').classList.remove('open');
+  state.wQty=0; state.pQty=0;
+  document.getElementById('wQty').innerText='0'; document.getElementById('pQty').innerText='0';
+  ['cName','cPhone','cAddress','cPincode','cNotes','mapLink'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('cSlot').value='';
+  updateSummary();
+}
+
+function requestAdminAccess() { document.getElementById('passwordModal').classList.add('open'); }
+function closePasswordModal() { document.getElementById('passwordModal').classList.remove('open'); document.getElementById('adminPassword').value=''; }
+function verifyPassword() {
+  if (document.getElementById('adminPassword').value === ADMIN_PASSWORD) {
+    state.isAdminLoggedIn = true; closePasswordModal(); document.getElementById('adminPanel').classList.add('open');
+    showToast("✅ Admin access granted");
+  } else { showToast("❌ Wrong password"); document.getElementById('adminPassword').value=''; }
+}
+function logoutAdmin() { state.isAdminLoggedIn = false; document.getElementById('adminPanel').classList.remove('open'); showToast("Logged out"); }
+function showToast(msg) { const t=document.getElementById('toastMsg'); t.innerText=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),3000); }
+
+loadFromCloud();
+</script>
+</body>
+</html>
+```
